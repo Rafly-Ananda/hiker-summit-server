@@ -23,11 +23,12 @@ router.post(
     });
 
     try {
+      // TODO : Fix max review logic
       if (userReview.length >= MAX_REVIEW_LENGTH)
         throw new Error("Reviews Limit Reached.");
 
       if (newReview.rating < 1 || newReview.rating > 5) {
-        throw new Error(`Rating Value is Out of Range.`);
+        throw new Error(`Rating Value is Out of Range, ( Min = 1 | Max = 5 )`);
       } else {
         const savedReview = await newReview.save();
         res.status(200).json(`Review Added : ${savedReview}`);
@@ -45,9 +46,10 @@ router.put(
   verifyTokenAndAuthorization,
   async (req, res) => {
     const reviewId = req.params.review_id;
+    const ratingValue = req.body.rating;
     try {
-      if (req.body.rating < 1 || req.body.rating > 5) {
-        throw new Error(`Rating Value is Out of Range.`);
+      if (ratingValue < 1 || ratingValue > 5) {
+        throw new Error(`Rating Value is Out of Range, ( Min = 1 | Max = 5 )`);
       } else {
         const updatedReview = await Review.findByIdAndUpdate(
           reviewId,
@@ -73,8 +75,6 @@ router.delete(
   async (req, res) => {
     const reviewId = req.params.review_id;
     try {
-      if (reviewId.length != 24) throw new Error("Id is Too Long / Short.");
-
       const response = await Review.findByIdAndDelete(reviewId);
       if (!response) {
         throw new Error("Review Not Found.");
@@ -104,8 +104,19 @@ router.get("/", async (req, res) => {
   }
 });
 
+// ? Get Single Review
+router.get("/find/:review_id", async (req, res) => {
+  const review_id = req.params.review_id;
+  try {
+    const review = await Review.findById(review_id);
+    res.status(200).json(review);
+  } catch (error) {
+    res.status(500).json(`Error Occurred : ${error.message}`);
+  }
+});
+
 // ? Get All Reviews Based on Destination
-router.get("/destination/:destination_id", async (req, res) => {
+router.get("/find/destination/:destination_id", async (req, res) => {
   let reviews;
   const queryNewest = req.query.newest;
 
@@ -131,7 +142,7 @@ router.get("/destination/:destination_id", async (req, res) => {
 });
 
 // ? Get All Review Based on User
-router.get("/user/:user_id", async (req, res) => {
+router.get("/find/user/:user_id", async (req, res) => {
   let reviews;
   const queryNewest = req.query.newest;
   try {

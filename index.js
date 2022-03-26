@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(cors());
 app.use(`/api/${API_VERSION}/auth`, authRoute);
 app.use(`/api/${API_VERSION}/users`, userRoute);
-app.use(`/api/${API_VERSION}/destination`, destinationRoute);
+app.use(`/api/${API_VERSION}/destinations`, destinationRoute);
 app.use(`/api/${API_VERSION}/reviews`, reviewRoute);
 app.use(`/api/${API_VERSION}/book`, bookRoute);
 app.use(`/api/${API_VERSION}/order`, orderRoute);

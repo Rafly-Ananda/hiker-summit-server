@@ -6,7 +6,6 @@ const {
   verifyTokenAndAuthorization,
 } = require("../middlewares/verifyToken");
 
-// TODO : Validate the enum schema of difficulty level
 // ? Create Destination
 router.post("/:user_id", verifyTokenAndAuthorization, async (req, res) => {
   const user_id = req.params.user_id;
@@ -19,7 +18,7 @@ router.post("/:user_id", verifyTokenAndAuthorization, async (req, res) => {
 
     res.status(201).json(savedDestination);
   } catch (error) {
-    res.status(500).json(`Error Occured : ${error.message}.`);
+    res.status(500).json(`Error Occurred : ${error.message}.`);
   }
 });
 
@@ -72,7 +71,7 @@ router.put("/:destination_id", verifyTokenAndAdmin, async (req, res) => {
       return;
     }
   } catch (error) {
-    res.status(500).json(`Error Occured : ${error.message}`);
+    res.status(500).json(`Error Occurred : ${error.message}`);
   }
 });
 
@@ -80,8 +79,6 @@ router.put("/:destination_id", verifyTokenAndAdmin, async (req, res) => {
 router.delete("/:destination_id", verifyTokenAndAdmin, async (req, res) => {
   const destinationId = req.params.destination_id;
   try {
-    if (destinationId.length != 24) throw new Error("Id is Too Long / Short.");
-
     const response = await Destination.findByIdAndDelete(destinationId);
     if (!response) {
       throw new Error("Destination Not Found.");
@@ -96,6 +93,7 @@ router.delete("/:destination_id", verifyTokenAndAdmin, async (req, res) => {
 
 // ? Get All Destination
 router.get("/", async (req, res) => {
+  // destinations?newest=true&destination=zero, use '&' to add another query param after a query param
   const queryNewest = req.query.new;
   const queryIsland = req.query.island;
   const queryDifficulty = req.query.difficulty;
@@ -125,15 +123,30 @@ router.get("/", async (req, res) => {
 
     res.status(200).json(destination);
   } catch (error) {
-    res.status(500).json(`Error Occurred : ${error}`);
+    res.status(500).json(`Error Occurred : ${error.message}`);
+  }
+});
+
+// ? Get Single Destination
+router.get("/find/:destination_id", async (req, res) => {
+  const destinationId = req.params.destination_id;
+  try {
+    const destination = await Destination.findById(destinationId);
+    if (!destination) {
+      throw new Error("Destination Not Found");
+    } else {
+      res.status(200).json(destination);
+      return;
+    }
+  } catch (error) {
+    res.status(404).json(`Error Occurred : ${error.message}`);
   }
 });
 
 // ? Get All Destination Added by User
-router.get("/added-by/:user_id", async (req, res) => {
+router.get("/find/added-by/:user_id", async (req, res) => {
   const userId = req.params.user_id;
   const queryNewest = req.query.new;
-
   let destinations;
 
   try {
@@ -146,25 +159,10 @@ router.get("/added-by/:user_id", async (req, res) => {
         added_by: userId,
       });
     }
+
     res.status(200).json(destinations);
   } catch (error) {
     res.status(500).json(`Error Occurred : ${error}`);
-  }
-});
-
-// ? Get Single Destination
-router.get("/:destination_id", async (req, res) => {
-  const destinationId = req.params.destination_id;
-  try {
-    const destination = await Destination.findById(destinationId);
-    if (!destination) {
-      throw new Error("Destination Not Found");
-    } else {
-      res.status(200).json(destination);
-      return;
-    }
-  } catch (error) {
-    res.status(404).json(`Error Occured : ${error.message}`);
   }
 });
 

@@ -5,14 +5,15 @@ const LocationSchema = new mongoose.Schema(
     province: { type: String, required: true },
     island: { type: String, required: true },
     city: { type: String },
-    district: { type: String },
-    ward: { type: String, required: true },
-    difficulty: {
-      type: String,
-      enum: ["pemula", "menengah", "ahli"],
-      required: true,
-    },
+    track: [
+      {
+        track_name: { type: String, required: true },
+        district: { type: String },
+        ward: { type: String, required: true },
+      },
+    ],
   },
+
   { _id: false }
 );
 
@@ -62,6 +63,11 @@ const DestinationSchema = new mongoose.Schema(
     title: { type: String, required: true, unique: true },
     location: { type: LocationSchema, required: true },
     content: { type: ContentSchema, required: true },
+    difficulty: {
+      type: String,
+      enum: ["pemula", "menengah", "ahli"],
+      required: true,
+    },
     likes: { type: Number, default: 0 },
   },
   { timestamps: true }
