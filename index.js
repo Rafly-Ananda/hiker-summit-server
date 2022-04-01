@@ -14,10 +14,9 @@ const authRoute = require("./server/routes/auth");
 const destinationRoute = require("./server/routes/destination");
 const reviewRoute = require("./server/routes/review");
 const bookRoute = require("./server/routes/book");
-const orderRoute = require("./server/routes/order");
 
 // ? Configs
-const { API_VERSION } = require("./server/config");
+const { API_VERSION } = require("./server/configs/config");
 
 const PORT = process.env.PORT || 5000;
 app.use(express.json());
@@ -27,7 +26,10 @@ app.use(`/api/${API_VERSION}/users`, userRoute);
 app.use(`/api/${API_VERSION}/destinations`, destinationRoute);
 app.use(`/api/${API_VERSION}/reviews`, reviewRoute);
 app.use(`/api/${API_VERSION}/book`, bookRoute);
-app.use(`/api/${API_VERSION}/order`, orderRoute);
+
+// ? Testing Route
+const imageRoute = require("./server/routes/imageRoute");
+app.use(`/api/${API_VERSION}/pictures`, imageRoute);
 
 mongoose
   .connect(process.env.MONGODB_URI)

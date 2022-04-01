@@ -14,7 +14,7 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
     userPassword = CryptoJS.AES.encrypt(
       userPassword,
       process.env.PASS_SEC
-    ).toString(); // ? to string is used to save it as string so we can store it in the database
+    ).toString();
   } else {
     throw new Error("Password Is Required.");
   }
@@ -23,7 +23,7 @@ router.put("/:id", verifyTokenAndAuthorization, async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       {
-        $set: req.body, // ? basically take everything from body and set it again because we want to update
+        $set: req.body,
       },
       { new: true }
     );
@@ -73,7 +73,6 @@ router.get("/find/:user_id", verifyTokenAndAdmin, async (req, res) => {
     const user = await User.findById(userID);
     // ? others is a variable that we make to store the rest of the user._doc object
     const { password, ...others } = user._doc;
-    console.log(user);
     res.status(200).json(others);
   } catch (error) {
     res.status(500).json(`Error Occurred : ${error.message}`);

@@ -10,15 +10,13 @@ router.post("/register", async (req, res) => {
     password: CryptoJS.AES.encrypt(
       req.body.password,
       process.env.PASS_SEC
-    ).toString(), // ? to string is used to save it as string so we can store it in the database
+    ).toString(),
   });
 
   try {
-    // ? save(), is an async function, need to async/await it
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (error) {
-    res.status(500).json("Account Already Exist.");
     res.status(500).json(`Error Occurred : ${error.message}`);
   }
 });
@@ -29,10 +27,7 @@ router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.body.username });
 
-    if (!user) {
-      res.status(401).json("Wrong Username.");
-      return;
-    }
+    if (!user) throw new Error("Wrong Username.");
 
     const hashedPassword = CryptoJS.AES.decrypt(
       user.password,
@@ -40,10 +35,8 @@ router.post("/login", async (req, res) => {
     );
     const Normalizedpassword = hashedPassword.toString(CryptoJS.enc.Utf8);
 
-    if (Normalizedpassword !== req.body.password) {
-      res.status(401).json("Wrong Password.");
-      return;
-    }
+    if (Normalizedpassword !== req.body.password)
+      throw new Error("Wrong Password.");
 
     const accessToken = jwt.sign(
       {
@@ -52,11 +45,11 @@ router.post("/login", async (req, res) => {
       },
       process.env.JWT_SEC,
       {
-        expiresIn: "3d", // ? token expires in 3 days
+        // TODO : Change this logic
+        expiresIn: `3d`, // ? token expires in 30 min `${30 * 60000}`
       }
     );
 
-    // ? get everything else except password
     const { password, ...others } = user._doc;
 
     res.status(200).json({ ...others, accessToken });

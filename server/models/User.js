@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new mongoose.Schema( // ? user bisa upload foto
   {
     email: { type: String, required: true, unique: true },
     username: { type: String, required: true, unique: true },

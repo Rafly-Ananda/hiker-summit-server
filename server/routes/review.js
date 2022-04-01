@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const Review = require("../models/Review");
 const { verifyTokenAndAuthorization } = require("../middlewares/verifyToken");
-const { MAX_REVIEW_LENGTH } = require("../config");
+const { MAX_REVIEW_LENGTH } = require("../configs/config");
 
 // TODO : this is still using server side validation for max rating, try to use mongodb validation
 // ? Create Review
@@ -23,16 +23,10 @@ router.post(
     });
 
     try {
-      // TODO : Fix max review logic
       if (userReview.length >= MAX_REVIEW_LENGTH)
         throw new Error("Reviews Limit Reached.");
-
-      if (newReview.rating < 1 || newReview.rating > 5) {
-        throw new Error(`Rating Value is Out of Range, ( Min = 1 | Max = 5 )`);
-      } else {
-        const savedReview = await newReview.save();
-        res.status(200).json(`Review Added : ${savedReview}`);
-      }
+      const savedReview = await newReview.save();
+      res.status(200).json(`Review Added : ${savedReview}`);
     } catch (error) {
       res.status(500).json(`Error Occurred : ${error.message}.`);
     }
