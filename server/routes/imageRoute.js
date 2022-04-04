@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const Image = require("../models/ImageTesting");
 const mongoose = require("mongoose");
-const multer = require("multer");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const Grid = require("gridfs-stream");
 const crypto = require("crypto");
@@ -204,18 +203,24 @@ const crypto = require("crypto");
 // });
 
 // ! CLOUDINARY
-const { multerUploads, dataUri } = require("../middlewares/multer");
-const { cloudinaryConfig, uploader } = require("../configs/cloudinary");
+const {
+  multerUploads,
+  multerS3Upload,
+  getS3File,
+  dataUri,
+} = require("../middlewares/multer");
+const { uploader } = require("../configs/cloudinary");
 const cloudinary = require("cloudinary").v2;
 
-router.use("*", cloudinaryConfig);
 router.post("/cloudinary/upload", multerUploads, async (req, res) => {
   const payload = [];
 
   try {
     for (const data of req.files) {
       let file = dataUri(data).content;
-      let response = await uploader.upload(file);
+      let response = await uploader.upload(file, {
+        folder: "destinations_assets",
+      });
       payload.push(response.url);
     }
 
@@ -229,15 +234,35 @@ router.post("/cloudinary/upload", multerUploads, async (req, res) => {
   }
 });
 
-router.post("/normalan", multerUploads, (req, res) => {
-  res.status(200).json("ok");
+router.post("/s3/upload", multerS3Upload.array("image", 5), (req, res) => {
+  res.send("Successfully uploaded " + req.files.length + " files!");
 });
 
+// ? get all image from cloudinary
 router.get("/cloudinary", (req, res) => {
   cloudinary.api.resources(function (error, result) {
     if (error) return;
     res.status(200).json(result);
   });
 });
+
+// TODO : fix error when wrong id and change id
+// ? get single image from destination route s3
+router.get("/s3/:key", (req, res) => {
+  try {
+    const key = req.params.key;
+    const readStream = getS3File(key);
+    readStream.pipe(res);
+  } catch (error) {
+    res.json("error");
+  }
+});
+
+// ? get single image from s3 (protected assets)
+// router.get("/s3/protected/:key", (req, res) => {
+//   const key = req.params.key;
+//   const readStream = getS3File(key);
+//   readStream.pipe(res);
+// });
 
 module.exports = router;
