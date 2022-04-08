@@ -1,7 +1,6 @@
-require("dotenv").config();
 const multer = require("multer");
-const DatauriParser = require("datauri/parser");
-const path = require("path");
+const { s3 } = require("../configs/s3");
+const multerS3 = require("multer-s3");
 
 const fileFilter = (req, file, cb) => {
   if (
@@ -9,69 +8,37 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === "image/jpg" ||
     file.mimetype === "image/jpeg"
   ) {
-    // accept
     cb(null, true);
   } else {
-    // reject file (only accpets png or jpg)
     cb(new Error("File extension not allowed."), false);
   }
 };
-const storage = multer.memoryStorage();
 
-// ? CLOUDINARY Settings
-const multerUploads = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024,
-  },
-  fileFilter,
-}).array("image", 5);
-
-const parser = new DatauriParser();
-
-const dataUri = (req) => {
-  return parser.format(path.extname(req.originalname).toString(), req.buffer);
+const uploadS3 = (bucketName) => {
+  return multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: `${process.env.AWS_BUCKET_NAME}/${bucketName}`,
+      metadata: function (req, file, cb) {
+        cb(null, { fieldName: file.fieldname });
+      },
+      key: function (req, file, cb) {
+        cb(null, Date.now() + file.originalname);
+      },
+    }),
+    fileFilter,
+  });
 };
 
-// ? S3 Settings
-// const s3 = require("../configs/s3");
-const multerS3 = require("multer-s3");
-const aws = require("aws-sdk");
-
-aws.config.update({
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  region: process.env.AWS_BUCKET_REGION,
-});
-
-const s3 = new aws.S3();
-
-// ** to get into s3 directory use / in the bucket when doing multers3 upload actions, look below
-
-const multerS3Upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: `${process.env.AWS_BUCKET_NAME}/destination_assets`,
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      cb(null, file.originalname);
-    },
-  }),
-});
-
-const getS3File = (key) => {
+const getS3File = (key, bucketFolder) => {
   const params = {
     Key: key,
-    Bucket: process.env.AWS_BUCKET_NAME + "/destination_assets",
+    Bucket: `${process.env.AWS_BUCKET_NAME}/${bucketFolder}`,
   };
-  return s3.getObject(params).createReadStream();
+  return s3.getObject(params);
 };
 
 module.exports = {
-  multerUploads,
-  multerS3Upload,
   getS3File,
-  dataUri,
+  uploadS3,
 };
