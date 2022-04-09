@@ -39,23 +39,17 @@ const ContentSchema = new mongoose.Schema(
     general_information: { type: String, required: true },
     rules: [
       {
-        attention: {
-          type: Array,
-        },
-        obligation: {
-          type: Array,
-          required: true,
-        },
-        prohibition: {
-          type: Array,
-          required: true,
-        },
+        attention: { type: Array },
+        obligation: { type: Array, required: true },
+        prohibition: { type: Array, required: true },
       },
     ],
-    accessibility: {
-      type: Object,
+    accessibility: { type: Object },
+    image_assets: {
+      bucket: { type: String },
+      assets_key: { type: Array },
     },
-    image_galery: { type: Array, required: true }, // ? an array of string containing the filename / image id || max 5 picture
+
     contact: { type: ContactSchema, required: true },
   },
   { _id: false }

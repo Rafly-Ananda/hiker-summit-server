@@ -30,15 +30,32 @@ const uploadS3 = (bucketName) => {
   });
 };
 
-const getS3File = (key, bucketFolder) => {
+const getS3 = (key, bucketFolder) => {
   const params = {
-    Key: key,
     Bucket: `${process.env.AWS_BUCKET_NAME}/${bucketFolder}`,
+    Key: key,
   };
   return s3.getObject(params);
 };
 
+const deleteS3 = (imageKeys, bucketFolder) => {
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Delete: {
+      Objects: imageKeys.map((key) => {
+        return { Key: `${bucketFolder}/${key}` };
+      }),
+    },
+  };
+
+  s3.deleteObjects(params, function (err, data) {
+    if (err) console.log(err, err.stack); // an error occurred
+    else console.log(data); // successful response
+  });
+};
+
 module.exports = {
-  getS3File,
   uploadS3,
+  getS3,
+  deleteS3,
 };

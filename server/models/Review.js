@@ -6,6 +6,10 @@ const ReviewScema = new mongoose.Schema(
     destination_id: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
+    review_images: {
+      bucket: { type: String },
+      assets_key: { type: Array },
+    },
     rating: {
       type: Number,
       min: 1,

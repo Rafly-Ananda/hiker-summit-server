@@ -1,6 +1,5 @@
 const CryptoJS = require("crypto-js");
 const User = require("../models/User");
-const Destination = require("../models/Destination");
 
 // ? Update User
 const updateUser = async (req, res) => {

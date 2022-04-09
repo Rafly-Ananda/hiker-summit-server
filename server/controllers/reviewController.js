@@ -37,14 +37,10 @@ const createReview = async (req, res) => {
 
 // ? Update Review
 const updateReview = async (req, res) => {
-  const ratingValue = req.body.rating;
   const reviewId = req.query.review_id;
 
   try {
     if (!reviewId) throw new Error("review_id Query is Needed ... ");
-
-    if (ratingValue < 1 || ratingValue > 5)
-      throw new Error(`Rating Value is Out of Range, ( Min = 1 | Max = 5 )`);
 
     const updatedReview = await Review.findByIdAndUpdate(
       reviewId,
@@ -53,6 +49,7 @@ const updateReview = async (req, res) => {
       },
       {
         new: false,
+        runValidators: true,
       }
     );
 

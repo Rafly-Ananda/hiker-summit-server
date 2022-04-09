@@ -10,7 +10,7 @@ const {
 
 /**
  * ? put and delete request needs to have a review_id query
- * TODO: still using server side validation for max rating, try to use mongodb validation
+ * TODO: Add image upload route to review also
  */
 
 router.post("/:user_id", verifyTokenAndAuthorization, createReview); // ? Create Review

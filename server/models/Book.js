@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const DestinationBookingSchema = new mongoose.Schema( // ? tambah proof of payment
+const DestinationBookingSchema = new mongoose.Schema(
   {
     user_id: { type: String, required: true },
     destination_id: { type: String, required: true },
@@ -11,7 +11,11 @@ const DestinationBookingSchema = new mongoose.Schema( // ? tambah proof of payme
         arrival: { type: String, required: true },
       },
     ],
-    hiker_count: { type: Number, required: true }, //? min 1 max 5
+    hiker_count: { type: Number, min: 1, max: 5, required: true },
+    proof_of_payment: {
+      bucket: { type: String },
+      assets_key: { type: String },
+    },
     note: { type: String },
     paid_status: {
       type: String,

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// satu user bisa menjadi guide, tapi user hanya bisa nge guide satu destinasi masksimal 1 rute jadi gabisa misal di rute rinjani ada list guide itu 3 kali berturut" patokan ke rute aja
 // ? Apakah track route yg pengen unik atau destination id yang unik
 const GuideSchema = new mongoose.Schema(
   {
@@ -22,5 +23,3 @@ const GuideSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Guide_Agent", GuideSchema);
-
-// satu user bisa menjadi guide, tapi user hanya bisa nge guide satu destinasi masksimal 1 rute jadi gabisa misal di rute rinjani ada list guide itu 3 kali berturut" patokan ke rute aja

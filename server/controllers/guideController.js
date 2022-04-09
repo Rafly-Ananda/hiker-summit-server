@@ -59,24 +59,29 @@ const updateGuide = async (req, res) => {
   }
 };
 
+// ? Update Guide, Status
 const updateGuideStatus = async (req, res) => {
   const guideId = req.params.guide_id;
+  const { status: activeStatus } = req.body;
+  console.log(activeStatus);
+
   try {
-    const updatedGuide = await Guide.findByIdAndUpdate(
+    const response = await Guide.findByIdAndUpdate(
       guideId,
       {
         $set: {
-          status: req.body,
+          status: activeStatus,
         },
       },
       {
         new: false,
+        runValidators: true, // ? enforce schema validation on update
       }
     );
     res.status(201).json({
       succes: true,
       message: `Guide Status Updated`,
-      result: updatedGuide,
+      result: response,
     });
   } catch (error) {
     res.status(500).json({
@@ -86,6 +91,7 @@ const updateGuideStatus = async (req, res) => {
   }
 };
 
+// ? Delete Guide
 const deleteGuide = async (req, res) => {
   const queryGuideId = req.params.guide_id;
   try {
@@ -102,7 +108,7 @@ const deleteGuide = async (req, res) => {
   }
 };
 
-// ? Get All Guide Agents
+// ? Get All Guide
 const getAllGuide = async (req, res) => {
   let guides;
   const queryDestination = req.query.destination;
@@ -135,7 +141,7 @@ const getAllGuide = async (req, res) => {
   }
 };
 
-// ? Get Single Guide Agents
+// ? Get Single Guide
 const getSingleGuide = async (req, res) => {
   const queryGuide = req.query.guide_id;
   try {

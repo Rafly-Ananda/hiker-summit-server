@@ -16,6 +16,7 @@ const {
 
 /**
  * TODO: Deadline pembayaran (30 menit), pasang bukti pembayaran
+ * TODO: Paid status route
  */
 
 router.post("/:user_id", verifyTokenAndAuthorization, createBooking); // ? Create Booking
