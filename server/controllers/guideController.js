@@ -2,16 +2,15 @@ const Guide = require("../models/Guide");
 
 // ? Register Guide
 const registerGuide = async (req, res) => {
-  const userId = req.params.user_id;
   const { destination_id } = req.body;
   const newGuide = new Guide({
-    user_id: userId,
+    user_id: req.params.user_id,
     ...req.body,
   });
   try {
     // ? verify duplicate
     const userGuide = await Guide.find({
-      user_id: userId,
+      user_id: req.params.user_id,
       destination_id: destination_id,
     });
 
@@ -34,11 +33,11 @@ const registerGuide = async (req, res) => {
 
 // ? Update Guide, (everything except destination)
 const updateGuide = async (req, res) => {
-  const guideId = req.query.guide_id;
+  const queryGuideId = req.query.guide_id;
   try {
-    if (guideId) throw new Error("guide_id Query is Needed ... ");
+    if (queryGuideId) throw new Error("guide_id Query is Needed ... ");
     const updatedGuide = await Guide.findByIdAndUpdate(
-      guideId,
+      req.query.guide_id,
       {
         $set: req.body,
       },
@@ -61,13 +60,11 @@ const updateGuide = async (req, res) => {
 
 // ? Update Guide, Status
 const updateGuideStatus = async (req, res) => {
-  const guideId = req.params.guide_id;
   const { status: activeStatus } = req.body;
-  console.log(activeStatus);
 
   try {
     const response = await Guide.findByIdAndUpdate(
-      guideId,
+      req.params.guide_id,
       {
         $set: {
           status: activeStatus,
@@ -93,9 +90,8 @@ const updateGuideStatus = async (req, res) => {
 
 // ? Delete Guide
 const deleteGuide = async (req, res) => {
-  const queryGuideId = req.params.guide_id;
   try {
-    await Guide.findByIdAndDelete(queryGuideId);
+    await Guide.findByIdAndDelete(req.params.guide_id);
     res.status(200).json({
       succes: true,
       message: `Guide Deleted.`,
@@ -143,9 +139,8 @@ const getAllGuide = async (req, res) => {
 
 // ? Get Single Guide
 const getSingleGuide = async (req, res) => {
-  const queryGuide = req.query.guide_id;
   try {
-    const guide = await Guide.findById(queryGuide);
+    const guide = await Guide.findById(req.params.guide_id);
     res.status(200).json({
       succes: true,
       result: guide,

@@ -9,6 +9,12 @@ const UserSchema = new mongoose.Schema( // ? user bisa upload foto
     last_name: { type: String, required: true },
     phone_number: { type: String, required: true },
     destination_wishlist: { type: Array },
+    user_status: {
+      type: String,
+      enum: ["umum", "guide"],
+      required: true,
+      default: "Umum",
+    },
     profile_picture: {
       bucket: { type: String },
       assets_key: { type: String },

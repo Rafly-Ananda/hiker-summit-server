@@ -11,6 +11,10 @@ const {
   getUserStats,
 } = require("../controllers/userController");
 
+/**
+ * TODO: if user deleted, if user is a guide delete him from guide also
+ */
+
 router.put("/:user_id", verifyTokenAndAuthorization, updateUser); // ? update user
 router.delete("/:user_id", verifyTokenAndAdmin, deleteUser); // ? Delete User
 router.get("/", verifyTokenAndAdmin, getAllUser); // ? Get All User

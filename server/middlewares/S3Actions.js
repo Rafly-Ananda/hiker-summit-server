@@ -23,6 +23,7 @@ const postImage = (req, res, next) => {
   });
 };
 
+// TODO: make this function select dynamic bucket and keys based on the array of attached dataset on mongodb database
 const deleteImage = async (req, res, next) => {
   try {
     const {

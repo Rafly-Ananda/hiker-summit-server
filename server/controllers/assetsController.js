@@ -9,11 +9,9 @@ const getImage = async (req, res) => {
     const readStream = getS3(keyQuery, bucketQuery)
       .createReadStream()
       .on("error", (error) => {
-        res
-          .status(500)
-          .json(
-            `Error Occurred : ${error.message} - folder name or object key might be incorrect...`
-          );
+        throw new Error(
+          `Error Occurred : ${error.message} - folder name or object key might be incorrect...`
+        );
       });
     readStream.pipe(res);
   } catch (error) {

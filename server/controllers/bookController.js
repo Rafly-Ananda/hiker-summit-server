@@ -2,10 +2,9 @@ const Book = require("../models/Book");
 
 // TODO : Deadline pembayaran (30 menit), pasang bukti pembayaran
 const createBooking = async (req, res) => {
-  const paramsUserId = req.params.user_id;
   const queryDestinationId = req.query.destination_id;
   const newBooking = new Book({
-    user_id: paramsUserId,
+    user_id: req.params.user_id,
     destination_id: queryDestinationId,
     ...req.body,
   });
@@ -27,10 +26,9 @@ const createBooking = async (req, res) => {
 
 // ? Update Booking Details
 const updateBookingDetails = async (req, res) => {
-  const bookingId = req.params.booking_id;
   try {
     // ? check if booking status is already paid or not
-    const { paid_status } = await Book.findById(bookingId);
+    const { paid_status } = await Book.findById(req.params.booking_id);
 
     if (paid_status === "unpaid")
       throw new Error("Booking process is already finished");
@@ -58,10 +56,9 @@ const updateBookingDetails = async (req, res) => {
 
 // ? Update Booking Paid Status
 const updateBookingPaidStatus = async (req, res) => {
-  const querybookingId = req.params.booking_id;
   try {
     const updatedBookingStatus = await Book.findByIdAndUpdate(
-      querybookingId,
+      req.params.booking_id,
       {
         $set: {
           paid_status: req.body,
@@ -82,10 +79,10 @@ const updateBookingPaidStatus = async (req, res) => {
 
 // ? Delete Booking
 const deleteBooking = async (req, res) => {
-  const queryBookingId = req.query.booking_id;
   try {
-    if (!queryBookingId) throw new Error("booking_id Query is Needed ... ");
-    await Book.findByIdAndDelete(queryBookingId);
+    if (!req.query.booking_id)
+      throw new Error("booking_id Query is Needed ... ");
+    await Book.findByIdAndDelete(req.query.booking_id);
     res.status(200).json({
       succes: true,
       message: `Booking Deleted.`,
@@ -148,25 +145,24 @@ const getAllBooking = async (req, res) => {
 
 const getAllUserBookings = async (req, res) => {
   let bookings;
-  const queryUserId = req.params.user_id;
   const queryStatus = req.query.status;
 
   try {
     if (queryStatus) {
       if (queryStatus === "unpaid") {
         bookings = await Book.find({
-          user_id: queryUserId,
+          user_id: req.params.user_id,
           paid_status: "unpaid",
         });
       } else {
         bookings = await Book.find({
-          user_id: queryUserId,
+          user_id: req.params.user_id,
           paid_status: "paid",
         });
       }
     } else {
       bookings = await Book.find({
-        user_id: queryUserId,
+        user_id: req.params.user_id,
       });
     }
 
@@ -184,9 +180,8 @@ const getAllUserBookings = async (req, res) => {
 
 // ? Get Single Bookings
 const getSingleBooking = async (req, res) => {
-  const bookingId = req.params.booking_id;
   try {
-    const bookings = await Book.findById(bookingId);
+    const bookings = await Book.findById(req.params.booking_id);
     if (!bookings)
       throw new Error(`Bookings Details on ${destinationId} Not Found.`);
     res.status(200).json({

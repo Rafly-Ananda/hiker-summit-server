@@ -3,19 +3,16 @@ const User = require("../models/User");
 
 // ? Update User
 const updateUser = async (req, res) => {
-  const userPassword = req.body.password;
-  const userId = req.params.user_id;
-
   try {
-    if (!userPassword) throw new Error("Password Is Required.");
+    if (!req.body.password) throw new Error("Password Is Required.");
 
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      req.params.user_id,
       {
         $set: {
           ...req.body,
           password: CryptoJS.AES.encrypt(
-            userPassword,
+            req.body.password,
             process.env.PASS_SEC
           ).toString(),
         },
@@ -38,13 +35,14 @@ const updateUser = async (req, res) => {
 
 // ? Delete User
 const deleteUser = async (req, res) => {
-  const user_id = req.params.user_id;
   try {
-    await User.findByIdAndDelete(user_id);
-    res.status(200).json({
-      succes: true,
-      message: `User Deleted`,
-    });
+    await User.findByIdAndDelete(req.params.user_id);
+    setTimeout(() => {
+      res.status(200).json({
+        succes: true,
+        message: `User Deleted`,
+      });
+    }, 2000);
   } catch (error) {
     res.status(500).json({
       succes: false,
@@ -79,9 +77,8 @@ const getAllUser = async (req, res) => {
 
 // ? Get Single User
 const getSingleUser = async (req, res) => {
-  const userID = req.params.user_id;
   try {
-    const user = await User.findById(userID);
+    const user = await User.findById(req.params.user_id);
     const { password, ...others } = user._doc;
     res.status(200).json({
       succes: true,

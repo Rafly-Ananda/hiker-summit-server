@@ -3,17 +3,16 @@ const { MAX_REVIEW_LENGTH } = require("../configs/config");
 
 // ? Create Review
 const createReview = async (req, res) => {
-  const userId = req.params.user_id;
   const destinationId = req.query.destination_id;
 
   const newReview = new Review({
-    user_id: userId,
+    user_id: req.params.user_id,
     destination_id: destinationId,
     ...req.body,
   });
 
   const userReview = await Review.find({
-    user_id: userId,
+    user_id: req.params.user_id,
   });
 
   try {
@@ -35,6 +34,7 @@ const createReview = async (req, res) => {
   }
 };
 
+// TODO: because user can add or change picture, this needs to be in form data
 // ? Update Review
 const updateReview = async (req, res) => {
   const reviewId = req.query.review_id;
@@ -134,9 +134,8 @@ const getAllReviews = async (req, res) => {
 
 // ? Get Single Review
 const getSingleReview = async (req, res) => {
-  const review_id = req.params.review_id;
   try {
-    const review = await Review.findById(review_id);
+    const review = await Review.findById(req.params.review_id);
     res.status(200).json({
       succes: true,
       result: review,

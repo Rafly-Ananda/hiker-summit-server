@@ -53,12 +53,11 @@ const updateDestination = async (req, res) => {
 
 // ? Update Destination Approved State ( Admin Only )
 const updateApprovedState = async (req, res) => {
-  const destinationId = req.params.destination_id;
   const { approved: approveStatus } = req.body;
 
   try {
     await Destination.findByIdAndUpdate(
-      destinationId,
+      req.params.destination_id,
       {
         $set: {
           approved: approveStatus,
