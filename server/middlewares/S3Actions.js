@@ -1,29 +1,51 @@
 const { uploadS3, deleteS3 } = require("../middlewares/multer");
 const Destination = require("../models/Destination");
+const { s3Folders } = require("../configs/s3");
 
 // ? post image
 const postImage = (req, res, next) => {
   let imageKeys = [];
-  const multerUpload = uploadS3(req.query.bucket).array("image", 5);
-  multerUpload(req, res, async (err) => {
-    try {
-      if (err) throw new Error(err.message);
+  if (!req.query.bucket) {
+    res.status(500).json({
+      succes: false,
+      message: `Bucket Query Needed.`,
+    });
+    return;
+  }
 
-      // ? save multer result to pass in destinationController
-      req.files.forEach((image) => imageKeys.push(image.key));
-      res.image_keys = imageKeys;
-      res.s3_bucket = req.files[0].bucket.split("/")[1];
-      next();
-    } catch (error) {
-      res.status(500).json({
-        succes: false,
-        message: `${error.message}.`,
-      });
-    }
-  });
+  if (s3Folders.includes(`${req.query.bucket.toLowerCase()}`)) {
+    const multerUpload = uploadS3(req.query.bucket.toLowerCase()).array(
+      "image",
+      5
+    );
+    multerUpload(req, res, async (err) => {
+      try {
+        if (err) throw new Error(err.message);
+
+        // ? save multer result to pass in destinationController
+        req.files.forEach((image) => imageKeys.push(image.key));
+        res.image_keys = imageKeys;
+
+        // ! need optional chaining here
+        res.s3_bucket =
+          req.files.length > 0 ? req.files[0].bucket.split("/")[1] : "";
+        next();
+      } catch (error) {
+        res.status(500).json({
+          succes: false,
+          message: `${error.message}.`,
+        });
+      }
+    });
+  } else {
+    res.status(500).json({
+      succes: false,
+      message: `Invalid Bucket.`,
+    });
+    return;
+  }
 };
 
-// TODO: make this function select dynamic bucket and keys based on the array of attached dataset on mongodb database
 const deleteImage = async (req, res, next) => {
   try {
     const {

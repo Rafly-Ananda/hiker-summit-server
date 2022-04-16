@@ -7,6 +7,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
+const cookieParser = require("cookie-parser");
 
 // ? Routes
 const userRoute = require("./server/routes/user");
@@ -21,9 +22,12 @@ const guideRoute = require("./server/routes/guide");
 const { API_VERSION } = require("./server/configs/config");
 const PORT = process.env.PORT || 5000;
 
-// ? Routes
+// ? App Middleware
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
+
+// ? Routes
 app.use(`/api/${API_VERSION}/auth`, authRoute);
 app.use(`/api/${API_VERSION}/users`, userRoute);
 app.use(`/api/${API_VERSION}/destinations`, destinationRoute);

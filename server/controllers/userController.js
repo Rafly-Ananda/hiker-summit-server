@@ -1,5 +1,6 @@
 const CryptoJS = require("crypto-js");
 const User = require("../models/User");
+const Guide = require("../models/Guide");
 
 // ? Update User
 const updateUser = async (req, res) => {
@@ -36,13 +37,17 @@ const updateUser = async (req, res) => {
 // ? Delete User
 const deleteUser = async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.user_id);
-    setTimeout(() => {
-      res.status(200).json({
-        succes: true,
-        message: `User Deleted`,
-      });
-    }, 2000);
+    await Promise.all([
+      await User.findByIdAndDelete(req.params.user_id),
+      await Guide.deleteMany({
+        user_id: req.params.user_id,
+      }),
+    ]);
+
+    res.status(200).json({
+      succes: true,
+      message: `User Deleted`,
+    });
   } catch (error) {
     res.status(500).json({
       succes: false,
@@ -53,19 +58,20 @@ const deleteUser = async (req, res) => {
 
 // ? Get All User
 const getAllUser = async (req, res) => {
-  let users;
-  const queryNewest = req.query.newest;
+  const paginationOptions = {
+    page: parseInt(req.query.page || 0),
+  };
+
+  req.query.page_size
+    ? (paginationOptions.limit = +req.query.page_size)
+    : (paginationOptions.pagination = false);
+  req.query.newest ? (paginationOptions.sort = { createdAt: -1 }) : "";
 
   try {
-    if (queryNewest) {
-      users = await User.find().sort({ createdAt: -1 });
-    } else {
-      users = await User.find();
-    }
-
+    const result = await User.paginate({}, paginationOptions);
     res.status(200).json({
       succes: true,
-      result: users,
+      result,
     });
   } catch (error) {
     res.status(500).json({

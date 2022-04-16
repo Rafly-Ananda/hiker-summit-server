@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const DestinationBookingSchema = new mongoose.Schema(
   {
@@ -28,6 +29,8 @@ const DestinationBookingSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+DestinationBookingSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model(
   "Destination_Booking",

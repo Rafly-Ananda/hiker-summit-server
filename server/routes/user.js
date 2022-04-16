@@ -12,7 +12,7 @@ const {
 } = require("../controllers/userController");
 
 /**
- * TODO: if user deleted, if user is a guide delete him from guide also
+ * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
 router.put("/:user_id", verifyTokenAndAuthorization, updateUser); // ? update user

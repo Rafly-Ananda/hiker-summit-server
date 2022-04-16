@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const UserSchema = new mongoose.Schema( // ? user bisa upload foto
   {
@@ -13,7 +14,7 @@ const UserSchema = new mongoose.Schema( // ? user bisa upload foto
       type: String,
       enum: ["umum", "guide"],
       required: true,
-      default: "Umum",
+      default: "umum",
     },
     profile_picture: {
       bucket: { type: String },
@@ -26,5 +27,7 @@ const UserSchema = new mongoose.Schema( // ? user bisa upload foto
   },
   { timestamps: true }
 );
+
+UserSchema.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("User", UserSchema);

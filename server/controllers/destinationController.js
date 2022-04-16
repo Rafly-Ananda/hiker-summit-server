@@ -1,12 +1,14 @@
 const Destination = require("../models/Destination");
 const User = require("../models/User");
 const Review = require("../models/Review");
+const Guide = require("../models/Guide");
 
 // ? Create Destination
 const createDestination = async (req, res) => {
-  const newDestination = new Destination(JSON.parse(Object.values(req.body)));
+  const newDestination = new Destination(JSON.parse(req.body.document));
   newDestination.content.image_assets.bucket = res.s3_bucket;
-  newDestination.content.image_assets.assets_key = [...res.image_keys];
+  newDestination.content.image_assets.assets_key = res.image_keys;
+  newDestination.added_by = req.params.user_id;
 
   try {
     const user = await User.findById(req.params.user_id);
@@ -25,18 +27,31 @@ const createDestination = async (req, res) => {
   }
 };
 
-// ? Update Destination Content
+// ? Update Destination Content,
 const updateDestination = async (req, res) => {
+  const payload = JSON.parse(req.body.document);
+  const newAssetsKeyValue = [
+    ...payload.content.image_assets.assets_key,
+    ...res.image_keys,
+  ];
+
+  payload.content.image_assets.assets_key = newAssetsKeyValue;
+
   try {
-    if (!req.query.destination)
+    if (!req.query.destination_id)
       throw new Error("destination_id Query is needed ...");
     const updatedDestination = await Destination.findByIdAndUpdate(
       req.query.destination_id,
       {
-        $set: req.body,
+        $set: payload,
       },
-      { new: false }
+      { new: false, runValidators: true }
     );
+
+    if (!updatedDestination)
+      throw new Error(
+        `Destination With id ${req.query.destination_id} Not Found...`
+      );
 
     res.status(201).json({
       succes: true,
@@ -65,6 +80,7 @@ const updateApprovedState = async (req, res) => {
       },
       {
         new: false,
+        runValidators: true,
       }
     );
     res.status(201).json({
@@ -85,6 +101,7 @@ const deleteDestination = async (req, res) => {
     await Promise.all([
       Destination.findByIdAndDelete(req.params.destination_id),
       Review.deleteMany({ destination_id: req.params.destination_id }),
+      Guide.deleteMany({ destination_id: req.params.destination_id }),
     ]);
     res.status(200).json({
       succes: true,
@@ -100,41 +117,53 @@ const deleteDestination = async (req, res) => {
 
 // ? Get All Destination
 const getAllDestination = async (req, res) => {
-  const queryNewest = req.query.new;
-  const queryIsland = req.query.island;
-  const queryDifficulty = req.query.difficulty;
-  const queryStatus = req.query.status;
-  const queryUser = req.query.user_id;
+  const aggregate = Destination.aggregate();
+  const paginationOptions = {
+    page: +req.query.page || 0,
+  };
+
+  req.query.page_size
+    ? (paginationOptions.limit = +req.query.page_size)
+    : (paginationOptions.pagination = false);
+  req.query.newest ? (paginationOptions.sort = { createdAt: -1 }) : "";
 
   try {
-    let destinations;
+    // ? if query island
+    req.query.island
+      ? aggregate.match({
+          "location.island": req.query.island,
+        })
+      : "";
 
-    if (queryNewest) {
-      // ? this will sort all of the destination without limitting it, if want to limit use limit(number) method after sort method (e.g. pagination)
-      destinations = await Destination.find().sort({ createdAt: -1 });
-    } else if (queryIsland) {
-      destinations = await Destination.find({
-        "location.island": queryIsland,
-      }).sort({ createdAt: -1 });
-    } else if (queryDifficulty) {
-      destinations = await Destination.find({
-        "location.difficulty": queryDifficulty,
-      }).sort({ createdAt: -1 });
-    } else if (queryStatus) {
-      destinations = await Destination.find({
-        approved: queryStatus,
-      }).sort({ createdAt: -1 });
-    } else if (queryUser) {
-      destinations = await Destination.find({
-        added_by: queryUser,
-      }).sort({ createdAt: -1 });
-    } else {
-      destinations = await Destination.find();
-    }
+    // ? if query level
+    req.query.level
+      ? aggregate.match({
+          difficulty: req.query.level,
+        })
+      : "";
+
+    // ? if query status
+    req.query.status
+      ? aggregate.match({
+          status: req.query.status,
+        })
+      : "";
+
+    // ? if query user_id
+    req.query.user_id
+      ? aggregate.match({
+          added_by: req.query.user_id,
+        })
+      : "";
+
+    const result = await Destination.aggregatePaginate(
+      aggregate,
+      paginationOptions
+    );
 
     res.status(200).json({
       succes: true,
-      result: destinations,
+      result,
     });
   } catch (error) {
     res.status(500).json({

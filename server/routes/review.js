@@ -10,7 +10,7 @@ const {
 
 /**
  * ? put and delete request needs to have a review_id query
- * TODO: Add image upload route to review also
+ * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
 router.post("/:user_id", verifyTokenAndAuthorization, createReview); // ? Create Review

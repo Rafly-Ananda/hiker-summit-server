@@ -34,7 +34,6 @@ const createReview = async (req, res) => {
   }
 };
 
-// TODO: because user can add or change picture, this needs to be in form data
 // ? Update Review
 const updateReview = async (req, res) => {
   const reviewId = req.query.review_id;
@@ -87,42 +86,25 @@ const deleteReview = async (req, res) => {
 
 // ? Get All Reviews
 const getAllReviews = async (req, res) => {
-  let reviews;
-  const queryNewest = req.query.newest;
-  const queryDestinationId = req.query.destination_id;
-  const queryUserId = req.query.user_id;
+  const paginationOptions = {
+    page: parseInt(req.query.page || 0),
+  };
+  const paginationQuery = new Object();
+
+  req.query.page_size
+    ? (paginationOptions.limit = +req.query.page_size)
+    : (paginationOptions.pagination = false);
+  req.query.destination_id
+    ? (paginationQuery.destination_id = req.query.destination_id)
+    : "";
+  req.query.newest ? (paginationOptions.sort = { createdAt: -1 }) : "";
+  req.query.user_id ? (paginationQuery.user_id = req.query.user_id) : "";
 
   try {
-    if (queryNewest) {
-      reviews = await Review.find().sort({ createdAt: -1 });
-    } else if (queryDestinationId) {
-      reviews = await Review.find({
-        destination_id: queryDestinationId,
-      }).sort({ createdAt: -1 });
-      if (reviews.length < 1) {
-        res.status(200).json({
-          succes: true,
-          message: "Destination Has No Reviews ...",
-        });
-        return;
-      }
-    } else if (queryUserId) {
-      reviews = await Review.find({
-        user_id: queryUserId,
-      }).sort({ createdAt: -1 });
-      if (reviews.length < 1) {
-        res.status(200).json({
-          succes: true,
-          message: "User Has Not Written Any Reviews ...",
-        });
-        return;
-      }
-    } else {
-      reviews = await Review.find();
-    }
+    const result = await Review.paginate(paginationQuery, paginationOptions);
     res.status(200).json({
       succes: true,
-      result: reviews,
+      result,
     });
   } catch (error) {
     res.status(500).json({

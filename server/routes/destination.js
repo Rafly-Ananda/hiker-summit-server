@@ -14,8 +14,9 @@ const {
 const { postImage, deleteImage } = require("../middlewares/S3Actions");
 
 /**
- * TODO: because this will be in form/data need to update the method
- *
+ * TODO: purge unused assets
+ * ? POST and PUT Destination Content need to pass bucket query
+ * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
 // ? Create Destination

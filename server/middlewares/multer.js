@@ -43,12 +43,15 @@ const deleteS3 = (imageKeys, bucketFolder) => {
     Bucket: process.env.AWS_BUCKET_NAME,
     Delete: {
       Objects: imageKeys.map((key) => {
-        return { key: `${bucketFolder}/${key}` };
+        return { Key: `${bucketFolder}/${key}` };
       }),
     },
   };
 
-  s3.deleteObjects(params);
+  s3.deleteObjects(params, function (err, data) {
+    if (err) console.log(err, err.stack); // ? an error occurred
+    else console.log(data); // ? successful response
+  });
 };
 
 module.exports = {

@@ -14,6 +14,7 @@ const {
 
 /**
  * ? put request (update guide) needs to have a guide_id query
+ * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
 router.post("/:user_id", verifyTokenAndAuthorization, registerGuide);

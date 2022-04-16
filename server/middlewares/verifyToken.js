@@ -1,54 +1,80 @@
 const jwt = require("jsonwebtoken");
+const { TokenExpiredError } = jwt;
+const { generateToken } = require("../helpers/generateToken");
+const { JWT_ACCESS_EXPIRATION } = require("../configs/config");
 
-// TODO : Implement Refresh Token
+const verifyRefreshToken = (req, res, next) => {
+  const refreshToken = req.cookies.refresh_token;
 
-// ? Here we just verify the token to acces basic setting like add cart when shopping ( NEED TO LOG IN )
-const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.token;
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
-    jwt.verify(token, process.env.JWT_SEC, (err, user) => {
-      if (err) {
-        res.status(403).json("Token Expires / Not Valid.");
-        return;
+  // ! db or cache checking for refresh token goes here ( blacklist goes here )
+
+  jwt.verify(refreshToken, process.env.JWT_REFRESH_SEC, (err, user) => {
+    if (err) {
+      if (err instanceof TokenExpiredError) {
+        return res.status(401).json({ message: "Token Expired" });
       }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.status(401).json("Not Authenticated.");
-  }
+      return res.status(403).json({ message: "No Token Presence In Cookie" });
+    }
+
+    const accessToken = generateToken(
+      {
+        id: user._id,
+        is_admin: user.is_admin,
+      },
+      JWT_ACCESS_EXPIRATION,
+      process.env.JWT_ACCESS_SEC
+    );
+
+    req.accessToken = accessToken;
+    next();
+  });
 };
 
-// ? This is used for update or delete account/reviews/destination because system needs to know if the right person logged in actually can mutate the data ( NEED TO LOG IN & Attached User_id in query params )
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.token;
+
+  if (!authHeader) {
+    return res.status(403).json({ message: "No Token Provided" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.JWT_ACCESS_SEC, (err, user) => {
+    if (err) {
+      if (err instanceof TokenExpiredError) {
+        return res.status(401).json({ message: "Token Expired" });
+      }
+      return res.status(403).json({ message: "Not Authenticated" });
+    }
+    req.user = user;
+    next();
+  });
+};
+
 const verifyTokenAndAuthorization = (req, res, next) => {
-  //  ? how we get or set the req.user is in the verifyToken, and in this function the verify token is executed first then the callback comes in, so in the callback we can acces the req.user param
   verifyToken(req, res, () => {
     if (req.user.id === req.params.user_id || req.user.is_admin) {
       next();
     } else {
-      res.status(403).json("Not Authorized.");
-      return;
+      return res.status(403).json({ message: "Unauthorized" });
     }
   });
 };
 
-// ? this will check the token inside header token payload
 const verifyTokenAndAdmin = (req, res, next) => {
   verifyToken(req, res, () => {
     if (req.user.is_admin) {
       next();
     } else {
-      res.status(403).json({
-        message: "Need Admin Access.",
+      return res.status(403).json({
+        message: "Admin Access",
       });
-      return;
     }
   });
 };
 
 module.exports = {
   verifyToken,
+  verifyRefreshToken,
   verifyTokenAndAuthorization,
   verifyTokenAndAdmin,
 };

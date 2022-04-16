@@ -1,7 +1,11 @@
 const API_VERSION = "v1";
 const MAX_REVIEW_LENGTH = 3;
+const JWT_ACCESS_EXPIRATION = 3600; // ? 1 hour 3600
+const JWT_REFRESH_EXPIRATION = "3d"; // ? 3 days
 
 module.exports = {
   API_VERSION,
   MAX_REVIEW_LENGTH,
+  JWT_ACCESS_EXPIRATION,
+  JWT_REFRESH_EXPIRATION,
 };

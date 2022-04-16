@@ -8,6 +8,14 @@ aws.config.update({
 
 const s3 = new aws.S3();
 
+const s3Folders = [
+  "destination_assets",
+  "user_assets",
+  "app_assets",
+  "payment",
+];
+
 module.exports = {
   s3,
+  s3Folders,
 };

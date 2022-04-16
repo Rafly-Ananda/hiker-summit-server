@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 
 const LocationSchema = new mongoose.Schema(
   {
@@ -57,7 +58,12 @@ const ContentSchema = new mongoose.Schema(
 
 const DestinationSchema = new mongoose.Schema(
   {
-    approved: { type: Boolean, default: false, required: true },
+    status: {
+      type: String,
+      enum: ["active", "unactive"],
+      default: "unactive",
+      required: true,
+    },
     added_by: { type: String, required: true },
     title: { type: String, required: true, unique: true },
     location: { type: LocationSchema, required: true },
@@ -72,5 +78,7 @@ const DestinationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+DestinationSchema.plugin(aggregatePaginate);
 
 module.exports = mongoose.model("Destination", DestinationSchema);

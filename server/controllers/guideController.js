@@ -1,22 +1,25 @@
 const Guide = require("../models/Guide");
+const User = require("../models/User");
 
 // ? Register Guide
 const registerGuide = async (req, res) => {
-  const { destination_id } = req.body;
   const newGuide = new Guide({
     user_id: req.params.user_id,
     ...req.body,
   });
+
   try {
-    // ? verify duplicate
+    // ? verify guide duplicate track_route
     const userGuide = await Guide.find({
       user_id: req.params.user_id,
-      destination_id: destination_id,
+      track_route: {
+        $in: [req.body.track_route],
+      },
     });
 
     // ? if guide exist
     if (userGuide && userGuide.length > 0)
-      throw new Error("Destination Only Accepts One User Guide Instance...");
+      throw new Error("Duplicate Track Route Detected ...");
     const savedGuide = await newGuide.save();
     res.status(201).json({
       succes: true,
@@ -31,6 +34,7 @@ const registerGuide = async (req, res) => {
   }
 };
 
+// ! might want to handle deleting destination id here
 // ? Update Guide, (everything except destination)
 const updateGuide = async (req, res) => {
   const queryGuideId = req.query.guide_id;
@@ -61,6 +65,7 @@ const updateGuide = async (req, res) => {
 // ? Update Guide, Status
 const updateGuideStatus = async (req, res) => {
   const { status: activeStatus } = req.body;
+  const userRoles = activeStatus === "active" ? "guide" : "umum";
 
   try {
     const response = await Guide.findByIdAndUpdate(
@@ -75,10 +80,27 @@ const updateGuideStatus = async (req, res) => {
         runValidators: true, // ? enforce schema validation on update
       }
     );
+
+    if (!response) throw new Error("Guide Not Found ... ");
+
+    // ? change user role status/role from 'umum' to 'guide'
+    const { user_id } = await Guide.findById(req.params.guide_id);
+    await User.findByIdAndUpdate(
+      user_id,
+      {
+        $set: {
+          user_status: userRoles,
+        },
+      },
+      {
+        new: false,
+        runValidators: true,
+      }
+    );
+
     res.status(201).json({
       succes: true,
       message: `Guide Status Updated`,
-      result: response,
     });
   } catch (error) {
     res.status(500).json({
@@ -106,28 +128,25 @@ const deleteGuide = async (req, res) => {
 
 // ? Get All Guide
 const getAllGuide = async (req, res) => {
-  let guides;
-  const queryDestination = req.query.destination;
-  const queryNewest = req.query.newest;
-  const queryUser = req.query.user;
+  const paginationOptions = {
+    page: parseInt(req.query.page || 0),
+  };
+  const paginationQuery = new Object();
+
+  req.query.page_size
+    ? (paginationOptions.limit = +req.query.page_size)
+    : (paginationOptions.pagination = false);
+  req.query.destination_id
+    ? (paginationQuery.destination_id = req.query.destination_id)
+    : "";
+  req.query.newest ? (paginationOptions.sort = { createdAt: -1 }) : "";
+  req.query.user_id ? (paginationQuery.user_id = req.query.user_id) : "";
 
   try {
-    if (queryNewest) {
-      guides = await Guide.find().sort({ createdAt: -1 });
-    } else if (queryDestination) {
-      guides = await Guide.find({
-        destination_id: queryDestination,
-      });
-    } else if (queryUser) {
-      guides = await Guide.find({
-        user_id: queryUser,
-      });
-    } else {
-      guides = await Guide.find();
-    }
+    const result = await Guide.paginate(paginationQuery, paginationOptions);
     res.status(200).json({
       succes: true,
-      result: guides,
+      result,
     });
   } catch (error) {
     res.status(500).json({
