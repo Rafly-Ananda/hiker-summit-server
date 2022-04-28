@@ -2,20 +2,16 @@ const CryptoJS = require("crypto-js");
 const User = require("../models/User");
 const Guide = require("../models/Guide");
 
-// ? Update User
+// TODO: make a route to change user password instead
+
+// ? Update User Data
 const updateUser = async (req, res) => {
   try {
-    if (!req.body.password) throw new Error("Password Is Required.");
-
     const updatedUser = await User.findByIdAndUpdate(
       req.params.user_id,
       {
         $set: {
           ...req.body,
-          password: CryptoJS.AES.encrypt(
-            req.body.password,
-            process.env.PASS_SEC
-          ).toString(),
         },
       },
       { new: false }

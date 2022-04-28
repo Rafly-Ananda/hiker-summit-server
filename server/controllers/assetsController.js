@@ -2,24 +2,18 @@ const { getS3 } = require("../middlewares/multer");
 
 // ? get image using query param
 const getImage = async (req, res) => {
-  const bucketQuery = req.query.bucket;
-  const keyQuery = req.query.key;
-  try {
-    if (!keyQuery || !bucketQuery) throw new Error("Query Parameter Needed.");
-    const readStream = getS3(keyQuery, bucketQuery)
+  const stream = getS3(req.query.key, req.query.bucket);
+  if (stream)
+    stream
       .createReadStream()
-      .on("error", (error) => {
-        throw new Error(
-          `Error Occurred : ${error.message} - folder name or object key might be incorrect...`
-        );
-      });
-    readStream.pipe(res);
-  } catch (error) {
-    res.status(500).json({
-      succes: false,
-      message: `${error.message}.`,
-    });
-  }
+      .on("error", (e) => {
+        res.status(404).json({
+          success: false,
+          message: "Asset Not Found",
+          err: e,
+        });
+      })
+      .pipe(res);
 };
 
 module.exports = {

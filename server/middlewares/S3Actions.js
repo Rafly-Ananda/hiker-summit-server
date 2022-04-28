@@ -42,7 +42,6 @@ const postImage = (req, res, next) => {
       succes: false,
       message: `Invalid Bucket.`,
     });
-    return;
   }
 };
 

@@ -20,7 +20,7 @@ const uploadS3 = (bucketName) => {
       s3: s3,
       bucket: `${process.env.AWS_BUCKET_NAME}/${bucketName}`,
       metadata: function (req, file, cb) {
-        cb(null, { fieldName: file.fieldname });
+        cb(null, { fieldName: file.fieldname, format: file.mimetype });
       },
       key: function (req, file, cb) {
         cb(null, Date.now() + file.originalname);
@@ -31,11 +31,10 @@ const uploadS3 = (bucketName) => {
 };
 
 const getS3 = (key, bucketFolder) => {
-  const params = {
+  return s3.getObject({
     Bucket: `${process.env.AWS_BUCKET_NAME}/${bucketFolder}`,
     Key: key,
-  };
-  return s3.getObject(params);
+  });
 };
 
 const deleteS3 = (imageKeys, bucketFolder) => {
@@ -49,8 +48,8 @@ const deleteS3 = (imageKeys, bucketFolder) => {
   };
 
   s3.deleteObjects(params, function (err, data) {
-    if (err) console.log(err, err.stack); // ? an error occurred
-    else console.log(data); // ? successful response
+    if (err) console.log(err, err.stack);
+    else console.log(data);
   });
 };
 

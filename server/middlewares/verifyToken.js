@@ -6,12 +6,12 @@ const { JWT_ACCESS_EXPIRATION } = require("../configs/config");
 const verifyRefreshToken = (req, res, next) => {
   const refreshToken = req.cookies.refresh_token;
 
-  // ! db or cache checking for refresh token goes here ( blacklist goes here )
+  //TODO : db or cache checking for refresh token
 
   jwt.verify(refreshToken, process.env.JWT_REFRESH_SEC, (err, user) => {
     if (err) {
       if (err instanceof TokenExpiredError) {
-        return res.status(401).json({ message: "Token Expired" });
+        return res.status(406).json({ message: "Refresh Token Expired" });
       }
       return res.status(403).json({ message: "No Token Presence In Cookie" });
     }
@@ -31,7 +31,7 @@ const verifyRefreshToken = (req, res, next) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.token;
+  const authHeader = req.headers.authorization;
 
   if (!authHeader) {
     return res.status(403).json({ message: "No Token Provided" });
@@ -41,7 +41,7 @@ const verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.JWT_ACCESS_SEC, (err, user) => {
     if (err) {
       if (err instanceof TokenExpiredError) {
-        return res.status(401).json({ message: "Token Expired" });
+        return res.status(403).json({ message: "Access Token Expired" });
       }
       return res.status(403).json({ message: "Not Authenticated" });
     }

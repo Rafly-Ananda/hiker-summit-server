@@ -12,7 +12,7 @@ const createDestination = async (req, res) => {
 
   try {
     const user = await User.findById(req.params.user_id);
-    if (user.is_admin) newDestination.approved = true;
+    if (user.is_admin) newDestination.status = "active";
     const savedDestination = await newDestination.save();
     res.status(201).json({
       succes: true,
@@ -119,7 +119,7 @@ const deleteDestination = async (req, res) => {
 const getAllDestination = async (req, res) => {
   const aggregate = Destination.aggregate();
   const paginationOptions = {
-    page: +req.query.page || 0,
+    page: +req.query.page || 1,
   };
 
   req.query.page_size

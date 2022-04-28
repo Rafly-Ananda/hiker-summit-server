@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema( // ? user bisa upload foto
     password: { type: String, required: true },
     first_name: { type: String, required: true },
     last_name: { type: String, required: true },
-    phone_number: { type: String, required: true },
+    phone_number: { type: Number, required: true },
     destination_wishlist: { type: Array },
     user_status: {
       type: String,
