@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema( // ? user bisa upload foto
       required: true,
       default: "umum",
     },
-    profile_picture: {
+    image_assets: {
       bucket: { type: String },
       assets_key: { type: String },
     },

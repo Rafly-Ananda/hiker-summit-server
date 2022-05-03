@@ -39,12 +39,7 @@ router.put(
 router.put("/status/:destination_id", verifyTokenAndAdmin, updateApprovedState);
 
 // ? Delete Destination ( Admin Only )
-router.delete(
-  "/:destination_id",
-  verifyTokenAndAdmin,
-  deleteImage,
-  deleteDestination
-);
+router.delete("/:id", verifyTokenAndAdmin, deleteImage, deleteDestination);
 
 router.get("/", getAllDestination); // ? Get All Destination
 router.get("/:destination_id", getSingleDestination); // ? Get Single Destination

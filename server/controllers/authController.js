@@ -13,12 +13,17 @@ const authToken = (req, res) => {
 
 // ? Register Controller
 const authRegister = async (req, res) => {
+  const payload = JSON.parse(req.body.document);
   const newUser = new User({
-    ...req.body,
+    ...payload,
     password: CryptoJS.AES.encrypt(
-      req.body.password,
+      payload.password,
       process.env.PASS_SEC
     ).toString(),
+    image_assets: {
+      bucket: res.s3_bucket,
+      assets_key: res.image_keys[0],
+    },
   });
 
   try {

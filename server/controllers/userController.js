@@ -2,9 +2,8 @@ const CryptoJS = require("crypto-js");
 const User = require("../models/User");
 const Guide = require("../models/Guide");
 
-// TODO: make a route to change user password instead
-
-// ? Update User Data
+// TODO: make a route to specifically change user password
+// ? Update User General
 const updateUser = async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
@@ -30,13 +29,42 @@ const updateUser = async (req, res) => {
   }
 };
 
+// ? Update User Picture
+const updateUserPicture = async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          image_assets: {
+            bucket: res.s3_bucket,
+            assets_key: res.image_keys[0],
+          },
+        },
+      },
+      { new: false }
+    );
+
+    res.status(201).json({
+      succes: true,
+      message: `User Updated`,
+      result: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
+  }
+};
+
 // ? Delete User
 const deleteUser = async (req, res) => {
   try {
     await Promise.all([
-      await User.findByIdAndDelete(req.params.user_id),
+      await User.findByIdAndDelete(req.params.id),
       await Guide.deleteMany({
-        user_id: req.params.user_id,
+        user_id: req.params.id,
       }),
     ]);
 
@@ -131,6 +159,7 @@ const getUserStats = async (req, res) => {
 
 module.exports = {
   updateUser,
+  updateUserPicture,
   deleteUser,
   getAllUser,
   getSingleUser,

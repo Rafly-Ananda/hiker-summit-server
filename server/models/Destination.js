@@ -8,7 +8,7 @@ const LocationSchema = new mongoose.Schema(
     city: { type: String }, // ? kota
     track: [
       {
-        track_name: { type: String, required: true },
+        track_name: { type: String, required: true, unique: true },
         basecamp_name: { type: String, required: true },
         road_name: { type: String, required: true },
         district: { type: String }, // ? kecamatan
@@ -18,7 +18,6 @@ const LocationSchema = new mongoose.Schema(
       },
     ],
   },
-
   { _id: false }
 );
 
@@ -30,21 +29,17 @@ const ContactSchema = new mongoose.Schema(
     location: { type: String, required: true },
     note: { type: String },
   },
-  {
-    _id: false,
-  }
+  { _id: false }
 );
 
 const ContentSchema = new mongoose.Schema(
   {
     general_information: { type: String, required: true },
-    rules: [
-      {
-        attention: { type: Array },
-        obligation: { type: Array, required: true },
-        prohibition: { type: Array, required: true },
-      },
-    ],
+    rules: {
+      attention: { type: Object },
+      obligation: { type: Object, required: true },
+      prohibition: { type: Object, required: true },
+    },
     accessibility: { type: Object },
     image_assets: {
       bucket: { type: String },

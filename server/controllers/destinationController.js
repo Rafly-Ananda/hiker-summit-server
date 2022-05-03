@@ -99,13 +99,13 @@ const updateApprovedState = async (req, res) => {
 const deleteDestination = async (req, res) => {
   try {
     await Promise.all([
-      Destination.findByIdAndDelete(req.params.destination_id),
-      Review.deleteMany({ destination_id: req.params.destination_id }),
-      Guide.deleteMany({ destination_id: req.params.destination_id }),
+      Destination.findByIdAndDelete(req.params.id),
+      Review.deleteMany({ destination_id: req.params.id }),
+      Guide.deleteMany({ destination_id: req.params.id }),
     ]);
     res.status(200).json({
       succes: true,
-      message: `Destination ${req.params.destination_id} Deleted.`,
+      message: `Destination ${req.params.id} Deleted.`,
     });
   } catch (error) {
     res.status(500).json({

@@ -6,8 +6,9 @@ const {
   authToken,
 } = require("../controllers/authController");
 const { verifyRefreshToken } = require("../middlewares/verifyToken");
+const { postImage } = require("../middlewares/S3Actions");
 
-router.post("/register", authRegister); // ? Register
+router.post("/register", postImage, authRegister); // ? Register
 router.post("/login", authLogin); // ? Login
 router.post("/logout", authLogout); // ? Logout
 router.post("/token", verifyRefreshToken, authToken); // ? Token Handler
