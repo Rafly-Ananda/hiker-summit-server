@@ -6,13 +6,13 @@ const createReview = async (req, res) => {
   const destinationId = req.query.destination_id;
 
   const newReview = new Review({
-    user_id: req.params.user_id,
+    user_id: req.params.id,
     destination_id: destinationId,
     ...req.body,
   });
 
   const userReview = await Review.find({
-    user_id: req.params.user_id,
+    user_id: req.params.id,
   });
 
   try {
@@ -117,7 +117,7 @@ const getAllReviews = async (req, res) => {
 // ? Get Single Review
 const getSingleReview = async (req, res) => {
   try {
-    const review = await Review.findById(req.params.review_id);
+    const review = await Review.findById(req.params.id);
     res.status(200).json({
       succes: true,
       result: review,

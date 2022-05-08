@@ -4,7 +4,6 @@ const { verifyTokenAndAuthorization } = require("../middlewares/verifyToken");
 
 /**
  * ? GET route needs folder and key query to where the assets is located
- * TODO: use param or query in getImage ???
  * TODO: create a function to purge unused images from upate destination content
  */
 

@@ -4,14 +4,14 @@ const User = require("../models/User");
 // ? Register Guide
 const registerGuide = async (req, res) => {
   const newGuide = new Guide({
-    user_id: req.params.user_id,
+    user_id: req.params.id,
     ...req.body,
   });
 
   try {
     // ? verify guide duplicate track_route
     const userGuide = await Guide.find({
-      user_id: req.params.user_id,
+      user_id: req.params.id,
       track_route: {
         $in: [req.body.track_route],
       },
@@ -69,7 +69,7 @@ const updateGuideStatus = async (req, res) => {
 
   try {
     const response = await Guide.findByIdAndUpdate(
-      req.params.guide_id,
+      req.params.id,
       {
         $set: {
           status: activeStatus,
@@ -84,7 +84,7 @@ const updateGuideStatus = async (req, res) => {
     if (!response) throw new Error("Guide Not Found ... ");
 
     // ? change user role status/role from 'umum' to 'guide'
-    const { user_id } = await Guide.findById(req.params.guide_id);
+    const { user_id } = await Guide.findById(req.params.id);
     await User.findByIdAndUpdate(
       user_id,
       {
@@ -113,7 +113,7 @@ const updateGuideStatus = async (req, res) => {
 // ? Delete Guide
 const deleteGuide = async (req, res) => {
   try {
-    await Guide.findByIdAndDelete(req.params.guide_id);
+    await Guide.findByIdAndDelete(req.params.id);
     res.status(200).json({
       succes: true,
       message: `Guide Deleted.`,
@@ -159,7 +159,7 @@ const getAllGuide = async (req, res) => {
 // ? Get Single Guide
 const getSingleGuide = async (req, res) => {
   try {
-    const guide = await Guide.findById(req.params.guide_id);
+    const guide = await Guide.findById(req.params.id);
     res.status(200).json({
       succes: true,
       result: guide,

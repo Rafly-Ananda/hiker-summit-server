@@ -7,7 +7,7 @@ const Guide = require("../models/Guide");
 const updateUser = async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
-      req.params.user_id,
+      req.params.id,
       {
         $set: {
           ...req.body,
@@ -108,7 +108,7 @@ const getAllUser = async (req, res) => {
 // ? Get Single User
 const getSingleUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.user_id);
+    const user = await User.findById(req.params.id);
     const { password, ...others } = user._doc;
     res.status(200).json({
       succes: true,

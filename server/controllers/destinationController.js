@@ -8,10 +8,10 @@ const createDestination = async (req, res) => {
   const newDestination = new Destination(JSON.parse(req.body.document));
   newDestination.content.image_assets.bucket = res.s3_bucket;
   newDestination.content.image_assets.assets_key = res.image_keys;
-  newDestination.added_by = req.params.user_id;
+  newDestination.added_by = req.params.id;
 
   try {
-    const user = await User.findById(req.params.user_id);
+    const user = await User.findById(req.params.id);
     if (user.is_admin) newDestination.status = "active";
     const savedDestination = await newDestination.save();
     res.status(201).json({
@@ -72,7 +72,7 @@ const updateApprovedState = async (req, res) => {
 
   try {
     await Destination.findByIdAndUpdate(
-      req.params.destination_id,
+      req.params.id,
       {
         $set: {
           approved: approveStatus,
@@ -85,7 +85,7 @@ const updateApprovedState = async (req, res) => {
     );
     res.status(201).json({
       succes: true,
-      message: `Destination ${req.params.destination_id} Approved Status Changed To ${approveStatus}.`,
+      message: `Destination ${req.params.id} Approved Status Changed To ${approveStatus}.`,
     });
   } catch (error) {
     res.status(500).json({
@@ -176,7 +176,7 @@ const getAllDestination = async (req, res) => {
 // ? Get Single Destination
 const getSingleDestination = async (req, res) => {
   try {
-    const destination = await Destination.findById(req.params.destination_id);
+    const destination = await Destination.findById(req.params.id);
     if (!destination) throw new Error("Destination Not Found");
 
     res.status(200).json({

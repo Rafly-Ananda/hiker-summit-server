@@ -8,23 +8,30 @@ const {
   createBooking,
   updateBookingDetails,
   updateBookingPaidStatus,
+  uploadProofOfPayment,
   deleteBooking,
   getAllBooking,
   getAllUserBookings,
   getSingleBooking,
 } = require("../controllers/bookController");
+const { postImage } = require("../middlewares/S3Actions");
 
 /**
- * TODO: Deadline pembayaran (24 jam), pasang bukti pembayaran
  * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
-router.post("/:user_id", verifyTokenAndAuthorization, createBooking); // ? Create Booking
-router.put("/:booking_id", verifyTokenAndAuthorization, updateBookingDetails); // ? Booking Details
-router.put("/status/:booking_id", verifyTokenAndAdmin, updateBookingPaidStatus); // ? Booking Status
-router.delete("/:user_id", verifyTokenAndAuthorization, deleteBooking); // ? Delete Booking
+router.post("/:id", verifyTokenAndAuthorization, createBooking); // ? Create Booking
+router.put("/:id", verifyTokenAndAuthorization, updateBookingDetails); // ? Booking Details
+router.put("/status/:id", verifyTokenAndAdmin, updateBookingPaidStatus); // ? Booking Status
+router.put(
+  "/payment/:id",
+  verifyTokenAndAuthorization,
+  postImage,
+  uploadProofOfPayment
+); // ? Upload proof of payment ( need query booking_id=...)
+router.delete("/:id", verifyTokenAndAuthorization, deleteBooking); // ? Delete Booking
 router.get("/", verifyTokenAndAdmin, getAllBooking); // ? All Bookings
-router.get("/user/:user_id", verifyTokenAndAuthorization, getAllUserBookings); // ? All User Booking
-router.get("/:booking_id", verifyToken, getSingleBooking); // ? Single Bookings
+router.get("/user/:id", verifyTokenAndAuthorization, getAllUserBookings); // ? All User Booking
+router.get("/:id", verifyToken, getSingleBooking); // ? Single Bookings
 
 module.exports = router;

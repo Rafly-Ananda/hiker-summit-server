@@ -6,16 +6,16 @@ const DestinationBookingSchema = new mongoose.Schema(
     user_id: { type: String, required: true },
     destination_id: { type: String, required: true },
     track_route: { type: Array, required: true },
-    date: [
-      {
-        departure: { type: String, required: true },
-        arrival: { type: String, required: true },
-      },
-    ],
+    date: {
+      departure: { type: String, required: true },
+      arrival: { type: String, required: true },
+    },
     hiker_count: { type: Number, min: 1, max: 5, required: true },
+    payment_deadline: { type: Number, required: true },
+    payment_amount: { type: Number, required: true },
     proof_of_payment: {
-      bucket: { type: String },
-      assets_key: { type: String },
+      bucket: { type: String, default: "" },
+      assets_key: { type: String, default: "" },
     },
     note: { type: String },
     paid_status: {

@@ -20,23 +20,13 @@ const { postImage, deleteImage } = require("../middlewares/S3Actions");
  */
 
 // ? Create Destination
-router.post(
-  "/:user_id",
-  verifyTokenAndAuthorization,
-  postImage,
-  createDestination
-);
+router.post("/:id", verifyTokenAndAuthorization, postImage, createDestination);
 
 // ? Update Destination Content
-router.put(
-  "/:user_id",
-  verifyTokenAndAuthorization,
-  postImage,
-  updateDestination
-);
+router.put("/:id", verifyTokenAndAuthorization, postImage, updateDestination);
 
 // ? Update Destination Approved State ( Admin Only )
-router.put("/status/:destination_id", verifyTokenAndAdmin, updateApprovedState);
+router.put("/status/:id", verifyTokenAndAdmin, updateApprovedState);
 
 // ? Delete Destination ( Admin Only )
 router.delete("/:id", verifyTokenAndAdmin, deleteImage, deleteDestination);

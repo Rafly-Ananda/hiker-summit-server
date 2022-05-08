@@ -17,11 +17,11 @@ const {
  * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
-router.post("/:user_id", verifyTokenAndAuthorization, registerGuide);
-router.delete("/:guide_id", verifyTokenAndAdmin, deleteGuide);
-router.put("/:user_id", verifyTokenAndAuthorization, updateGuide);
-router.put("/status/:guide_id", verifyTokenAndAdmin, updateGuideStatus);
+router.post("/:id", verifyTokenAndAuthorization, registerGuide);
+router.put("/:id", verifyTokenAndAuthorization, updateGuide);
+router.put("/status/:id", verifyTokenAndAdmin, updateGuideStatus);
+router.delete("/:id", verifyTokenAndAdmin, deleteGuide);
 router.get("/", getAllGuide);
-router.get("/:guide_id", getSingleGuide);
+router.get("/:id", getSingleGuide);
 
 module.exports = router;

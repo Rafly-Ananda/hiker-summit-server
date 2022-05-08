@@ -1,16 +1,38 @@
 const Book = require("../models/Book");
+const Destination = require("../models/Destination");
 
-// TODO : Deadline pembayaran (30 menit), pasang bukti pembayaran
+// ? Create Booking
 const createBooking = async (req, res) => {
+  // ? generate unique number for payment amount
+  let uniqueId = Math.floor(Math.random() * 1000 + 1);
+  // ? function to add hours
+  const setDeadline = (hoursCount = 1, date = new Date()) => {
+    date.setTime(date.getTime() + hoursCount * 60 * 60 * 1000);
+    return date;
+  };
+
   const queryDestinationId = req.query.destination_id;
+
   const newBooking = new Book({
-    user_id: req.params.user_id,
-    destination_id: queryDestinationId,
     ...req.body,
+    user_id: req.params.id,
+    destination_id: queryDestinationId,
+    payment_deadline: setDeadline().getTime(),
   });
 
   try {
+    const { price_per_person } = await Destination.findById(
+      req.query.destination_id
+    );
+
+    // ? calculate and generate payment amount
+    newBooking.payment_amount = Number(
+      String(price_per_person * newBooking.hiker_count).slice(0, -3) +
+        String(uniqueId)
+    );
+
     const savedBooking = await newBooking.save();
+
     res.status(201).json({
       succes: true,
       message: `Booking Created`,
@@ -28,10 +50,15 @@ const createBooking = async (req, res) => {
 const updateBookingDetails = async (req, res) => {
   try {
     // ? check if booking status is already paid or not
-    const { paid_status } = await Book.findById(req.params.booking_id);
+    const { paid_status } = await Book.findById(req.params.id);
 
-    if (paid_status === "unpaid")
-      throw new Error("Booking process is already finished");
+    if (paid_status === "paid") {
+      res.status(202).json({
+        succes: false,
+        message: "Booking process is already finished",
+      });
+      return;
+    }
 
     const updatedBooking = await Book.findByIdAndUpdate(
       bookingId,
@@ -43,7 +70,7 @@ const updateBookingDetails = async (req, res) => {
 
     res.status(201).json({
       succes: true,
-      message: `Booking Updated`,
+      message: `Booking Details Updated`,
       result: updatedBooking,
     });
   } catch (error) {
@@ -54,13 +81,62 @@ const updateBookingDetails = async (req, res) => {
   }
 };
 
-// ? Update Booking Paid Status
+// ? upload proof of payment
+const uploadProofOfPayment = async (req, res) => {
+  const currentDate = new Date();
+  try {
+    const { payment_deadline } = await Book.findById(req.query.booking_id);
+    if (currentDate.getTime() > payment_deadline) {
+      res.status(202).json({
+        succes: false,
+        message: "Payment deadline overdue",
+      });
+      return;
+    }
+
+    const updatedBooking = await Book.findByIdAndUpdate(
+      req.query.booking_id,
+      {
+        $set: {
+          proof_of_payment: {
+            bucket: res.s3_bucket,
+            assets_key: res.image_keys[0],
+          },
+        },
+      },
+      { new: false }
+    );
+
+    res.status(201).json({
+      succes: true,
+      message: `Proof of payment, uploaded`,
+      result: updatedBooking,
+    });
+  } catch (error) {
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
+  }
+};
+
+// ? Update Booking Paid Status ( this route is used after checking the validity of the proof of payment )
 const updateBookingPaidStatus = async (req, res) => {
   const { paid_status } = req.body;
+  const currentDate = new Date();
 
   try {
+    const { payment_deadline } = await Book.findById(req.params.id);
+
+    if (currentDate.getTime() > payment_deadline) {
+      res.status(202).json({
+        succes: false,
+        message: "Payment deadline overdue",
+      });
+      return;
+    }
     const updatedBookingStatus = await Book.findByIdAndUpdate(
-      req.params.booking_id,
+      req.params.id,
       {
         $set: {
           paid_status,
@@ -75,7 +151,10 @@ const updateBookingPaidStatus = async (req, res) => {
       result: updatedBookingStatus,
     });
   } catch (error) {
-    res.status(500).json(`Error Occurred : ${error}`);
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
   }
 };
 
@@ -138,18 +217,18 @@ const getAllUserBookings = async (req, res) => {
     if (queryStatus) {
       if (queryStatus === "unpaid") {
         bookings = await Book.find({
-          user_id: req.params.user_id,
+          user_id: req.params.id,
           paid_status: "unpaid",
         });
       } else {
         bookings = await Book.find({
-          user_id: req.params.user_id,
+          user_id: req.params.id,
           paid_status: "paid",
         });
       }
     } else {
       bookings = await Book.find({
-        user_id: req.params.user_id,
+        user_id: req.params.id,
       });
     }
 
@@ -168,9 +247,9 @@ const getAllUserBookings = async (req, res) => {
 // ? Get Single Bookings
 const getSingleBooking = async (req, res) => {
   try {
-    const bookings = await Book.findById(req.params.booking_id);
+    const bookings = await Book.findById(req.params.id);
     if (!bookings)
-      throw new Error(`Bookings Details on ${destinationId} Not Found.`);
+      throw new Error(`Bookings Details on ${req.params.id} Not Found.`);
     res.status(200).json({
       succes: true,
       result: bookings,
@@ -187,6 +266,7 @@ module.exports = {
   createBooking,
   updateBookingDetails,
   updateBookingPaidStatus,
+  uploadProofOfPayment,
   deleteBooking,
   getAllBooking,
   getAllUserBookings,

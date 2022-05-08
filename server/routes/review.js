@@ -13,10 +13,10 @@ const {
  * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
-router.post("/:user_id", verifyTokenAndAuthorization, createReview); // ? Create Review
-router.put("/:user_id", verifyTokenAndAuthorization, updateReview); // ? Update Review
-router.delete("/:user_id", verifyTokenAndAuthorization, deleteReview); // ? Delete Review
+router.post("/:id", verifyTokenAndAuthorization, createReview); // ? Create Review
+router.put("/:id", verifyTokenAndAuthorization, updateReview); // ? Update Review
+router.delete("/:id", verifyTokenAndAuthorization, deleteReview); // ? Delete Review
 router.get("/", getAllReviews); // ? Get All Reviews
-router.get("/:review_id", getSingleReview); // ? Get Single Review
+router.get("/:id", getSingleReview); // ? Get Single Review
 
 module.exports = router;
