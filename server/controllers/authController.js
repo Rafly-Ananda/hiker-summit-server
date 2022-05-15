@@ -5,6 +5,18 @@ const {
   JWT_REFRESH_EXPIRATION,
 } = require("../configs/config");
 const { generateToken } = require("../helpers/generateToken");
+const nodemailer = require("nodemailer");
+
+// create reusable transporter object using the default SMTP transport
+let transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: "your@email.com", // generated ethereal user
+    pass: "emailpassword", // generated ethereal password
+  },
+});
 
 // ? Refresh Token Controller
 const authToken = (req, res) => {
@@ -24,10 +36,20 @@ const authRegister = async (req, res) => {
       bucket: res.s3_bucket,
       assets_key: res.image_keys[0],
     },
+    verified: payload.is_admin ? true : false,
   });
 
   try {
     const savedUser = await newUser.save();
+
+    // send mail with defined transport object
+    await transporter.sendMail({
+      from: "darkrafly@gmail.com", // sender address
+      to: payload.email, // list of receivers
+      subject: "Let's get started on your new adventure ... ", // Subject line
+      text: "thanks for registering", // plain text body
+    });
+
     res.status(201).json({
       success: true,
       message: `User Created`,

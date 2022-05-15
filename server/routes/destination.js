@@ -32,6 +32,6 @@ router.put("/status/:id", verifyTokenAndAdmin, updateApprovedState);
 router.delete("/:id", verifyTokenAndAdmin, deleteImage, deleteDestination);
 
 router.get("/", getAllDestination); // ? Get All Destination
-router.get("/:destination_id", getSingleDestination); // ? Get Single Destination
+router.get("/:id", getSingleDestination); // ? Get Single Destination
 
 module.exports = router;
