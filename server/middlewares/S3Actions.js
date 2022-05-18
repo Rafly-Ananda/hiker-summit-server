@@ -3,8 +3,6 @@ const Destination = require("../models/Destination");
 const User = require("../models/User");
 const { s3Folders } = require("../configs/s3");
 
-// TODO: if user ga nambah image lewat aja mmiddleware ini
-
 // ? post image
 const postImage = (req, res, next) => {
   let imageKeys = [];
@@ -16,9 +14,12 @@ const postImage = (req, res, next) => {
     try {
       if (err) throw new Error(err.message);
       // ? save multer result to pass in destinationController
-      req.files.forEach((image) => imageKeys.push(image.key));
-      res.image_keys = imageKeys;
-      // ! need optional chaining here
+      if (req.files.length < 1) {
+        res.image_keys = [""];
+      } else {
+        req.files.forEach((image) => imageKeys.push(image.key));
+        res.image_keys = imageKeys;
+      }
       res.s3_bucket =
         req.files.length > 0 ? req.files[0].bucket.split("/")[1] : "";
       next();

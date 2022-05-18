@@ -1,26 +1,52 @@
 const CryptoJS = require("crypto-js");
 const User = require("../models/User");
 const Guide = require("../models/Guide");
+const { sendVerificationEmail } = require("../helpers/nodemailer");
 
-// TODO: make a route to specifically change user password
 // ? Update User General
 const updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          ...req.body,
-        },
-      },
-      { new: false }
-    );
+    const result = await Promise.all([
+      User.findById(req.body._id),
+      User.findOne({
+        username: req.body.username,
+      }),
+      User.findOne({ email: req.body.email }),
+    ]);
 
-    res.status(201).json({
-      succes: true,
-      message: `User Updated`,
-      result: updatedUser,
-    });
+    // ? if user is attaching password, it means user is changing password
+    if (req.body.password) {
+      req.body.password = CryptoJS.AES.encrypt(
+        req.body.password,
+        process.env.PASS_SEC
+      ).toString();
+    }
+
+    if (result[1] && result[0].username !== req.body.username) {
+      throw Error("Userame already registered");
+    } else if (result[2] && result[0].email !== req.body.email) {
+      throw Error("Email already registered");
+    } else {
+      if (result[0].email !== req.body.email) {
+        req.body.verified = false;
+        sendVerificationEmail(req.body);
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            ...req.body,
+          },
+        },
+        { new: false }
+      );
+      res.status(201).json({
+        succes: true,
+        message: `User Updated`,
+        result: updatedUser,
+      });
+    }
   } catch (error) {
     res.status(500).json({
       succes: false,
@@ -84,6 +110,7 @@ const deleteUser = async (req, res) => {
 const getAllUser = async (req, res) => {
   const paginationOptions = {
     page: parseInt(req.query.page || 0),
+    select: "-password", // ? send everything but exclude password
   };
 
   req.query.page_size

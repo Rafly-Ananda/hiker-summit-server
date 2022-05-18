@@ -5,18 +5,7 @@ const {
   JWT_REFRESH_EXPIRATION,
 } = require("../configs/config");
 const { generateToken } = require("../helpers/generateToken");
-const nodemailer = require("nodemailer");
-
-// create reusable transporter object using the default SMTP transport
-let transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: "your@email.com", // generated ethereal user
-    pass: "emailpassword", // generated ethereal password
-  },
-});
+const { sendVerificationEmail } = require("../helpers/nodemailer");
 
 // ? Refresh Token Controller
 const authToken = (req, res) => {
@@ -32,6 +21,7 @@ const authRegister = async (req, res) => {
       payload.password,
       process.env.PASS_SEC
     ).toString(),
+    // TODO: make a place holder image if user is not attaching profile picture
     image_assets: {
       bucket: res.s3_bucket,
       assets_key: res.image_keys[0],
@@ -41,14 +31,7 @@ const authRegister = async (req, res) => {
 
   try {
     const savedUser = await newUser.save();
-
-    // send mail with defined transport object
-    await transporter.sendMail({
-      from: "darkrafly@gmail.com", // sender address
-      to: payload.email, // list of receivers
-      subject: "Let's get started on your new adventure ... ", // Subject line
-      text: "thanks for registering", // plain text body
-    });
+    sendVerificationEmail(newUser);
 
     res.status(201).json({
       success: true,
@@ -74,9 +57,9 @@ const authLogin = async (req, res) => {
       user.password,
       process.env.PASS_SEC
     );
-    const Normalizedpassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+    const normalizedPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
 
-    if (Normalizedpassword !== req.body.password)
+    if (normalizedPassword !== req.body.password)
       throw new Error("Wrong Credentials.");
 
     const accessToken = generateToken(
