@@ -8,6 +8,7 @@ const LocationSchema = new mongoose.Schema(
     city: { type: String }, // ? kota
     track: [
       {
+        description: { type: String, required: true },
         track_name: { type: String, required: true, unique: true },
         basecamp_name: { type: String, required: true },
         road_name: { type: String, required: true },
