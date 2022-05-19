@@ -2,14 +2,15 @@ const { uploadS3, deleteS3 } = require("../middlewares/multer");
 const Destination = require("../models/Destination");
 const User = require("../models/User");
 const { s3Folders } = require("../configs/s3");
+const { MAX_IMAGE_ALLOWED } = require("../configs/config");
 
 // ? post image
 const postImage = (req, res, next) => {
   let imageKeys = [];
   const basePath = req.baseUrl.split("/").at(-1);
   const bucketFolder = Object.values(s3Folders[basePath]).join("");
+  const multerUpload = uploadS3(bucketFolder).array("image", MAX_IMAGE_ALLOWED);
 
-  const multerUpload = uploadS3(bucketFolder).array("image", 5);
   multerUpload(req, res, async (err) => {
     try {
       if (err) throw new Error(err.message);

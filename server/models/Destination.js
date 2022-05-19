@@ -16,19 +16,9 @@ const LocationSchema = new mongoose.Schema(
         ward: { type: String, required: true }, // ? kelurahan
         village: { type: String, required: true }, // ? desa
         postal_code: { type: Number }, // ? kode pos
+        phone_number: { type: Number, required: true },
       },
     ],
-  },
-  { _id: false }
-);
-
-const ContactSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    phone_number: { type: String, required: true },
-    position: { type: String, required: true },
-    location: { type: String, required: true },
-    note: { type: String },
   },
   { _id: false }
 );
@@ -46,8 +36,6 @@ const ContentSchema = new mongoose.Schema(
       bucket: { type: String },
       assets_key: { type: Array },
     },
-
-    contact: { type: ContactSchema, required: true },
   },
   { _id: false }
 );
@@ -76,5 +64,4 @@ const DestinationSchema = new mongoose.Schema(
 );
 
 DestinationSchema.plugin(aggregatePaginate);
-
 module.exports = mongoose.model("Destination", DestinationSchema);
