@@ -30,10 +30,15 @@ const createDestination = async (req, res) => {
 // ? Update Destination Content,
 const updateDestination = async (req, res) => {
   const payload = JSON.parse(req.body.document);
-  const newAssetsKeyValue = [
-    ...payload.content.image_assets.assets_key,
-    ...res.image_keys,
-  ];
+  let newAssetsKeyValue = [];
+
+  // ? if its includes " " it means that we modified the document body in the front end, if not then we add it from insomnia where we cant explicitly edit or add the new key name to the updated destination
+  res.image_keys.includes("")
+    ? (newAssetsKeyValue = [...payload.content.image_assets.assets_key])
+    : (newAssetsKeyValue = [
+        ...payload.content.image_assets.assets_key,
+        ...res.image_keys,
+      ]);
 
   payload.content.image_assets.assets_key = newAssetsKeyValue;
 
@@ -98,11 +103,24 @@ const updateApprovedState = async (req, res) => {
 // ? Delete Destination ( Admin Only )
 const deleteDestination = async (req, res) => {
   try {
-    await Promise.all([
+    await Promise.allSettled([
       Destination.findByIdAndDelete(req.params.id),
       Review.deleteMany({ destination_id: req.params.id }),
       Guide.deleteMany({ destination_id: req.params.id }),
+      User.updateMany(
+        {
+          destination_wishlist: {
+            $in: [req.params.id],
+          },
+        },
+        {
+          $pull: {
+            destination_wishlist: { $in: [req.params.id] },
+          },
+        }
+      ),
     ]);
+
     res.status(200).json({
       succes: true,
       message: `Destination ${req.params.id} Deleted.`,

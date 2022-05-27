@@ -87,7 +87,7 @@ const updateUserPicture = async (req, res) => {
 // ? Delete User
 const deleteUser = async (req, res) => {
   try {
-    await Promise.all([
+    await Promise.allSettled([
       await User.findByIdAndDelete(req.params.id),
       await Guide.deleteMany({
         user_id: req.params.id,

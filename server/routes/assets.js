@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getImage } = require("../controllers/assetsController");
+const { getImage, deleteImage } = require("../controllers/assetsController");
 const { verifyTokenAndAuthorization } = require("../middlewares/verifyToken");
 
 /**
@@ -8,6 +8,7 @@ const { verifyTokenAndAuthorization } = require("../middlewares/verifyToken");
  */
 
 router.get("/", getImage); // ? get image ( public )
-router.get("/protected/:key", verifyTokenAndAuthorization, getImage); // ? get image ( protected )
+router.delete("/", deleteImage); // ? delete image ( provide key and bucket query)
+router.get("/protected/:key", verifyTokenAndAuthorization, getImage); // ? get image ( protected: payment proof etc.. )
 
 module.exports = router;

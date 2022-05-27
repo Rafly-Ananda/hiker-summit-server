@@ -6,7 +6,7 @@ const { JWT_EMAIL_EXPIRATION } = require("../configs/config");
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
-  secure: true, // true for 465, false for other ports
+  secure: true, // gmil needs, to be true for 465, false for other ports
   auth: {
     user: process.env.NODEMAILER_USER, // generated ethereal user
     pass: process.env.NODEMAILER_PASS, // generated ethereal password
@@ -32,6 +32,43 @@ const sendVerificationEmail = async (user) => {
   });
 };
 
+const sendPaymentConfirmationEmail = async (user, amount) => {
+  await transporter.sendMail({
+    from: process.env.NODEMAILER_USER, // sender address
+    to: user.email, // list of receivers
+    subject: "Hiker Summit Transaction Confirmation",
+    html: `<b>Yaay, a gude accepted your booking ... </b> please pay to .... (bank acc hiker summit) with amount ${amount}, after that send the payment proof to here ... (link to upload proof page in fe)`,
+  });
+};
+
+const sendBookingPaidEmailUser = async (user, guide, booking) => {
+  await transporter.sendMail({
+    from: process.env.NODEMAILER_USER, // sender address
+    to: user.email, // list of receivers
+    subject: "Hiker Summit Booking Success",
+    html: `<b>Booking is accepted, enjoy your adventure... here is your guide detail ${JSON.stringify(
+      guide
+    )}<br/>
+    booking detail:
+    <br/>
+    ${JSON.stringify(booking)}`,
+  });
+};
+
+const sendBookingPaidEmailGuide = async (user, guide, booking) => {
+  await transporter.sendMail({
+    from: process.env.NODEMAILER_USER, // sender address
+    to: guide.email, // list of receivers
+    subject: "Hiker Summit Booking Success",
+    html: `<b>Booking is accepted, enjoy your adventure... </b> here is the customer detail${JSON.stringify(
+      user
+    )}<br/>
+    booking detail:
+    <br/>
+    ${JSON.stringify(booking)}`,
+  });
+};
+
 const sendEmail = async (target) => {
   await transporter.sendMail({
     from: process.env.NODEMAILER_USER,
@@ -45,4 +82,7 @@ const sendEmail = async (target) => {
 module.exports = {
   sendEmail,
   sendVerificationEmail,
+  sendPaymentConfirmationEmail,
+  sendBookingPaidEmailUser,
+  sendBookingPaidEmailGuide,
 };

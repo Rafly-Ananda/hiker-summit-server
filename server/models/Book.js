@@ -5,6 +5,7 @@ const DestinationBookingSchema = new mongoose.Schema(
   {
     user_id: { type: String, required: true },
     destination_id: { type: String, required: true },
+    guide_id: { type: String, default: "" },
     track_route: { type: Array, required: true },
     date: {
       departure: { type: String, required: true },
@@ -31,8 +32,4 @@ const DestinationBookingSchema = new mongoose.Schema(
 );
 
 DestinationBookingSchema.plugin(mongoosePaginate);
-
-module.exports = mongoose.model(
-  "Destination_Booking",
-  DestinationBookingSchema
-);
+module.exports = mongoose.model("bookings", DestinationBookingSchema);

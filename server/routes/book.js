@@ -9,6 +9,7 @@ const {
   updateBookingDetails,
   updateBookingPaidStatus,
   uploadProofOfPayment,
+  guideAccept,
   deleteBooking,
   getAllBooking,
   getAllUserBookings,
@@ -20,8 +21,16 @@ const { postImage } = require("../middlewares/S3Actions");
  * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
 
-router.post("/:id", verifyTokenAndAuthorization, createBooking); // ? Create Booking
-router.put("/:id", verifyTokenAndAuthorization, updateBookingDetails); // ? Booking Details
+router.post(
+  "/users/:id/destinations/:destination_id",
+  verifyTokenAndAuthorization,
+  createBooking
+); // ? Create Booking
+router.put(
+  "/:booking_id/users/:id",
+  verifyTokenAndAuthorization,
+  updateBookingDetails
+); // ? Booking Details
 router.put("/status/:id", verifyTokenAndAdmin, updateBookingPaidStatus); // ? Booking Status
 router.put(
   "/payment/:id",
@@ -29,6 +38,11 @@ router.put(
   postImage,
   uploadProofOfPayment
 ); // ? Upload proof of payment ( need query booking_id=...)
+router.post(
+  "/:booking_id/guides/:id",
+  verifyTokenAndAuthorization,
+  guideAccept
+); // ? guide accepting book
 router.delete("/:id", verifyTokenAndAuthorization, deleteBooking); // ? Delete Booking
 router.get("/", verifyTokenAndAdmin, getAllBooking); // ? All Bookings
 router.get("/user/:id", verifyTokenAndAuthorization, getAllUserBookings); // ? All User Booking

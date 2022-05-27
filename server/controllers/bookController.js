@@ -1,5 +1,12 @@
 const Book = require("../models/Book");
 const Destination = require("../models/Destination");
+const Guide = require("../models/Guide");
+const User = require("../models/User");
+const {
+  sendPaymentConfirmationEmail,
+  sendBookingPaidEmailUser,
+  sendBookingPaidEmailGuide,
+} = require("../helpers/nodemailer");
 
 // ? Create Booking
 const createBooking = async (req, res) => {
@@ -7,11 +14,11 @@ const createBooking = async (req, res) => {
   let uniqueId = Math.floor(Math.random() * 1000 + 1);
   // ? function to add hours
   const setDeadline = (hoursCount = 1, date = new Date()) => {
-    date.setTime(date.getTime() + hoursCount * 60 * 60 * 1000);
+    date.setTime(date.getTime() + hoursCount * 60 * 60 * 1000); // 24 hrs
     return date;
   };
 
-  const queryDestinationId = req.query.destination_id;
+  const queryDestinationId = req.params.destination_id;
 
   const newBooking = new Book({
     ...req.body,
@@ -21,13 +28,17 @@ const createBooking = async (req, res) => {
   });
 
   try {
-    const { price_per_person } = await Destination.findById(
-      req.query.destination_id
+    const user = await User.findById(req.params.id);
+
+    if (!user.verified) throw new Error("Your account is not verified");
+
+    const { price_per_day } = await Destination.findById(
+      req.params.destination_id
     );
 
     // ? calculate and generate payment amount
     newBooking.payment_amount = Number(
-      String(price_per_person * newBooking.hiker_count).slice(0, -3) +
+      String(price_per_day * newBooking.hiker_count).slice(0, -3) +
         String(uniqueId)
     );
 
@@ -50,7 +61,9 @@ const createBooking = async (req, res) => {
 const updateBookingDetails = async (req, res) => {
   try {
     // ? check if booking status is already paid or not
-    const { paid_status } = await Book.findById(req.params.id);
+    const { paid_status, guide_id } = await Book.findById(
+      req.params.booking_id
+    );
 
     if (paid_status === "paid") {
       res.status(202).json({
@@ -60,8 +73,16 @@ const updateBookingDetails = async (req, res) => {
       return;
     }
 
+    if (guide_id.length > 0) {
+      res.status(202).json({
+        succes: false,
+        message: "Guide already accepted, cannot be changed",
+      });
+      return;
+    }
+
     const updatedBooking = await Book.findByIdAndUpdate(
-      bookingId,
+      req.params.booking_id,
       {
         $set: req.body,
       },
@@ -86,6 +107,7 @@ const uploadProofOfPayment = async (req, res) => {
   const currentDate = new Date();
   try {
     const { payment_deadline } = await Book.findById(req.query.booking_id);
+
     if (currentDate.getTime() > payment_deadline) {
       res.status(202).json({
         succes: false,
@@ -120,21 +142,29 @@ const uploadProofOfPayment = async (req, res) => {
   }
 };
 
-// ? Update Booking Paid Status ( this route is used after checking the validity of the proof of payment )
+// ? Update Booking Paid Status ( this route is used after checking the validity of the proof of payment, Done by admin via dashboard admin )
 const updateBookingPaidStatus = async (req, res) => {
   const { paid_status } = req.body;
   const currentDate = new Date();
 
   try {
-    const { payment_deadline } = await Book.findById(req.params.id);
+    const booking = await Book.findById(req.params.id);
 
-    if (currentDate.getTime() > payment_deadline) {
+    const [user, guide] = await Promise.allSettled([
+      User.findById(booking.user_id),
+      Guide.findById(booking.guide_id),
+    ]);
+
+    const userGuide = await User.findById(guide.value.user_id);
+
+    if (currentDate.getTime() > booking.payment_deadline) {
       res.status(202).json({
         succes: false,
         message: "Payment deadline overdue",
       });
       return;
     }
+
     const updatedBookingStatus = await Book.findByIdAndUpdate(
       req.params.id,
       {
@@ -145,10 +175,51 @@ const updateBookingPaidStatus = async (req, res) => {
       { new: false, runValidators: true }
     );
 
+    // TODO: send the booking details also in the image to the user and guide
+    sendBookingPaidEmailUser(user.value, userGuide, booking);
+    sendBookingPaidEmailGuide(user.value, userGuide, booking);
+
     res.status(201).json({
       succes: true,
       message: `Booking Status Updated`,
       result: updatedBookingStatus,
+    });
+  } catch (error) {
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
+  }
+};
+
+const guideAccept = async (req, res) => {
+  // TODO: update the guide ongoing transaction to this
+  try {
+    const [userGuide, booking] = await Promise.allSettled([
+      Guide.find({ user_id: req.params.id }),
+      Book.findById(req.params.booking_id),
+    ]);
+
+    const userThatBook = await User.findById(booking.value.user_id);
+
+    if (userGuide.value.length < 1) throw new Error("No guide found");
+    if (booking.value.guide_id.length)
+      throw new Error("Book is not valid to be accepted");
+
+    await Book.findByIdAndUpdate(
+      req.params.booking_id,
+      {
+        $set: {
+          guide_id: userGuide.value[0]._id,
+        },
+      },
+      { new: false }
+    );
+
+    sendPaymentConfirmationEmail(userThatBook, booking.value.payment_amount);
+    res.status(201).json({
+      succes: true,
+      message: `Guide Accepted`,
     });
   } catch (error) {
     res.status(500).json({
@@ -267,6 +338,7 @@ module.exports = {
   updateBookingDetails,
   updateBookingPaidStatus,
   uploadProofOfPayment,
+  guideAccept,
   deleteBooking,
   getAllBooking,
   getAllUserBookings,

@@ -1,4 +1,4 @@
-const { getS3 } = require("../middlewares/multer");
+const { getS3, deleteS3 } = require("../middlewares/multer");
 
 // ? get image using query param
 const getImage = async (req, res) => {
@@ -16,6 +16,12 @@ const getImage = async (req, res) => {
       .pipe(res);
 };
 
+const deleteImage = async (req, res) => {
+  deleteS3([req.query.key], req.query.bucket);
+  res.status(204).json({ message: "ok" });
+};
+
 module.exports = {
   getImage,
+  deleteImage,
 };

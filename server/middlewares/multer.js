@@ -37,6 +37,7 @@ const getS3 = (key, bucketFolder) => {
   });
 };
 
+// ! IF KEY OR BUCKET EMPTY OR NULL THIS WILL CRASH THE SERVER
 const deleteS3 = (imageKeys, bucketFolder) => {
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,

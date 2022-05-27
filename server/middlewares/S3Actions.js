@@ -38,6 +38,8 @@ const deleteImage = async (req, res, next) => {
   const basePath = req.baseUrl.split("/").at(-1);
   let assets;
   try {
+    // TODO: add base path for payment images
+    // ? this route currently deleting all images in destination
     if (basePath === "destinations") {
       const {
         content: { image_assets },
