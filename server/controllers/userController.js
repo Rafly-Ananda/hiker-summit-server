@@ -109,7 +109,7 @@ const deleteUser = async (req, res) => {
 const getAllUserPublic = async (req, res) => {
   const paginationOptions = {
     page: parseInt(req.query.page || 0),
-    select: "_id username",
+    select: "_id username image_assets",
   };
 
   req.query.page_size
