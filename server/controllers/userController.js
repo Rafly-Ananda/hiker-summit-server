@@ -106,6 +106,31 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const getAllUserPublic = async (req, res) => {
+  const paginationOptions = {
+    page: parseInt(req.query.page || 0),
+    select: "_id username",
+  };
+
+  req.query.page_size
+    ? (paginationOptions.limit = +req.query.page_size)
+    : (paginationOptions.pagination = false);
+  req.query.newest ? (paginationOptions.sort = { createdAt: -1 }) : "";
+
+  try {
+    const result = await User.paginate({}, paginationOptions);
+    res.status(200).json({
+      succes: true,
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
+  }
+};
+
 // ? Get All User
 const getAllUser = async (req, res) => {
   const paginationOptions = {
@@ -189,6 +214,7 @@ module.exports = {
   updateUserPicture,
   deleteUser,
   getAllUser,
+  getAllUserPublic,
   getSingleUser,
   getUserStats,
 };

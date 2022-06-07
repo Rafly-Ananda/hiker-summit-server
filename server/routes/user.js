@@ -10,14 +10,13 @@ const {
   getAllUser,
   getSingleUser,
   getUserStats,
+  getAllUserPublic,
 } = require("../controllers/userController");
 const { postImage, deleteImage } = require("../middlewares/S3Actions");
 
 /**
  * ? for pagination needs to attach query page_size (limit) and page (currentPage)
  */
-
-// TODO: make a route so that user that is not admin can get user, route that only give id, username only
 
 router.put("/:id", verifyTokenAndAuthorization, updateUser); // ? update user
 router.put(
@@ -29,6 +28,7 @@ router.put(
 ); // ? update user picures
 router.delete("/:id", deleteImage, verifyTokenAndAdmin, deleteUser); // ? Delete User
 router.get("/", verifyTokenAndAdmin, getAllUser); // ? Get All User
+router.get("/public", getAllUserPublic); // ? Get All User
 router.get("/:id", verifyTokenAndAuthorization, getSingleUser); // ? Get Single User
 router.get("/stats", verifyTokenAndAdmin, getUserStats); // ? Get User Stats
 

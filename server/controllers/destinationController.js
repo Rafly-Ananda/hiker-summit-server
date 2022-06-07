@@ -32,6 +32,8 @@ const updateDestination = async (req, res) => {
   const payload = JSON.parse(req.body.document);
   let newAssetsKeyValue = [];
 
+  console.log(res.image_keys);
+
   // ? if its includes " " it means that we modified the document body in the front end, if not then we add it from insomnia where we cant explicitly edit or add the new key name to the updated destination
   res.image_keys.includes("")
     ? (newAssetsKeyValue = [...payload.content.image_assets.assets_key])
@@ -43,10 +45,10 @@ const updateDestination = async (req, res) => {
   payload.content.image_assets.assets_key = newAssetsKeyValue;
 
   try {
-    if (!req.query.destination_id)
+    if (!req.params.destination_id)
       throw new Error("destination_id Query is needed ...");
     const updatedDestination = await Destination.findByIdAndUpdate(
-      req.query.destination_id,
+      req.params.destination_id,
       {
         $set: payload,
       },
@@ -55,7 +57,7 @@ const updateDestination = async (req, res) => {
 
     if (!updatedDestination)
       throw new Error(
-        `Destination With id ${req.query.destination_id} Not Found...`
+        `Destination With id ${req.params.destination_id} Not Found...`
       );
 
     res.status(201).json({
