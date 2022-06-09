@@ -58,7 +58,7 @@ const updateUser = async (req, res) => {
 // ? Update User Picture
 const updateUserPicture = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
@@ -74,7 +74,7 @@ const updateUserPicture = async (req, res) => {
     res.status(201).json({
       succes: true,
       message: `User Updated`,
-      result: updatedUser,
+      result: res.image_keys[0],
     });
   } catch (error) {
     res.status(500).json({
@@ -109,7 +109,7 @@ const deleteUser = async (req, res) => {
 const getAllUserPublic = async (req, res) => {
   const paginationOptions = {
     page: parseInt(req.query.page || 0),
-    select: "_id username image_assets",
+    select: "_id first_name last_name image_assets",
   };
 
   req.query.page_size

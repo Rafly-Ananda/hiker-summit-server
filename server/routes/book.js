@@ -8,6 +8,7 @@ const {
   createBooking,
   updateBookingDetails,
   updateBookingPaidStatus,
+  cancelBooking,
   uploadProofOfPayment,
   guideAccept,
   deleteBooking,
@@ -38,6 +39,11 @@ router.put(
   postImage,
   uploadProofOfPayment
 ); // ? Upload proof of payment ( need query booking_id=...)
+router.put(
+  "/:booking_id/users/:id",
+  verifyTokenAndAuthorization,
+  cancelBooking
+);
 router.post(
   "/:booking_id/guides/:id",
   verifyTokenAndAuthorization,

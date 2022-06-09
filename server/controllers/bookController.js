@@ -144,11 +144,15 @@ const uploadProofOfPayment = async (req, res) => {
 
 // ? Update Booking Paid Status ( this route is used after checking the validity of the proof of payment, Done by admin via dashboard admin )
 const updateBookingPaidStatus = async (req, res) => {
-  const { paid_status } = req.body;
+  const { paid_status, booking_status } = req.body;
   const currentDate = new Date();
 
   try {
     const booking = await Book.findById(req.params.id);
+
+    if (booking.guide_id.length < 1) {
+      throw new Error("Guide for this booking, not found");
+    }
 
     const [user, guide] = await Promise.allSettled([
       User.findById(booking.user_id),
@@ -170,14 +174,44 @@ const updateBookingPaidStatus = async (req, res) => {
       {
         $set: {
           paid_status,
+          booking_status,
         },
       },
       { new: false, runValidators: true }
     );
 
-    // TODO: send the booking details also in the image to the user and guide
-    sendBookingPaidEmailUser(user.value, userGuide, booking);
-    sendBookingPaidEmailGuide(user.value, userGuide, booking);
+    // // TODO: send the booking details also in the image to the user and guide
+    // sendBookingPaidEmailUser(user.value, userGuide, booking);
+    // sendBookingPaidEmailGuide(user.value, userGuide, booking);
+
+    res.status(201).json({
+      succes: true,
+      message: `Booking Status Updated`,
+      result: updatedBookingStatus,
+    });
+  } catch (error) {
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
+  }
+};
+
+const cancelBooking = async (req, res) => {
+  const { booking_status } = req.body;
+
+  try {
+    const booking = await Book.findById(req.params.id);
+
+    const updatedBookingStatus = await Book.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          booking_status,
+        },
+      },
+      { new: false, runValidators: true }
+    );
 
     res.status(201).json({
       succes: true,
@@ -337,6 +371,7 @@ module.exports = {
   createBooking,
   updateBookingDetails,
   updateBookingPaidStatus,
+  cancelBooking,
   uploadProofOfPayment,
   guideAccept,
   deleteBooking,

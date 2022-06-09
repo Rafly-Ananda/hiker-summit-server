@@ -25,6 +25,12 @@ const DestinationBookingSchema = new mongoose.Schema(
       default: "unpaid",
       required: true,
     },
+    booking_status: {
+      type: String,
+      enum: ["pending", "canceled", "declined", "accepted"],
+      default: "pending",
+      required: true,
+    },
   },
   {
     timestamps: true,
