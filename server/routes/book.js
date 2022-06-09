@@ -40,7 +40,7 @@ router.put(
   uploadProofOfPayment
 ); // ? Upload proof of payment ( need query booking_id=...)
 router.put(
-  "/:booking_id/users/:id",
+  "/:booking_id/users/:id/cancel",
   verifyTokenAndAuthorization,
   cancelBooking
 );
