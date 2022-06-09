@@ -198,16 +198,12 @@ const updateBookingPaidStatus = async (req, res) => {
 };
 
 const cancelBooking = async (req, res) => {
-  const { booking_status } = req.body;
-
   try {
-    const booking = await Book.findById(req.params.id);
-
     const updatedBookingStatus = await Book.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
-          booking_status,
+          booking_status: "canceled",
         },
       },
       { new: false, runValidators: true }
