@@ -180,9 +180,9 @@ const updateBookingPaidStatus = async (req, res) => {
       { new: false, runValidators: true }
     );
 
-    // // TODO: send the booking details also in the image to the user and guide
-    // sendBookingPaidEmailUser(user.value, userGuide, booking);
-    // sendBookingPaidEmailGuide(user.value, userGuide, booking);
+    // TODO: send the booking details also in the image to the user and guide
+    sendBookingPaidEmailUser(user.value, userGuide, booking);
+    sendBookingPaidEmailGuide(user.value, userGuide, booking);
 
     res.status(201).json({
       succes: true,

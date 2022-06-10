@@ -7,6 +7,7 @@ const {
   registerGuide,
   updateGuide,
   updateGuideStatus,
+  approveGuide,
   deleteGuide,
   getAllGuide,
   getSingleGuide,
@@ -20,6 +21,7 @@ const {
 router.post("/:id", verifyTokenAndAuthorization, registerGuide);
 router.put("/:id", verifyTokenAndAuthorization, updateGuide);
 router.put("/status/:id", verifyTokenAndAdmin, updateGuideStatus);
+router.put("/:guide_id/users/:id", verifyTokenAndAdmin, approveGuide);
 router.delete("/:id", verifyTokenAndAdmin, deleteGuide);
 router.get("/", getAllGuide);
 router.get("/:id", getSingleGuide);

@@ -17,7 +17,8 @@ const reviewRoute = require("./server/routes/review");
 const bookRoute = require("./server/routes/book");
 const assetsRoute = require("./server/routes/assets");
 const guideRoute = require("./server/routes/guide");
-const confirmation = require("./server/routes/confirmation");
+const confirmationRoute = require("./server/routes/confirmation");
+const ticketsRoute = require("./server/routes/tickets");
 
 // ? Configs
 const { API_VERSION } = require("./server/configs/config");
@@ -36,7 +37,8 @@ app.use(`/api/${API_VERSION}/reviews`, reviewRoute);
 app.use(`/api/${API_VERSION}/bookings`, bookRoute);
 app.use(`/api/${API_VERSION}/assets`, assetsRoute);
 app.use(`/api/${API_VERSION}/guides`, guideRoute);
-app.use(`/api/${API_VERSION}/confirmation`, confirmation);
+app.use(`/api/${API_VERSION}/confirmation`, confirmationRoute);
+app.use(`/api/${API_VERSION}/tickets`, ticketsRoute);
 
 // ? mongoose-mongoDB connection
 mongoose

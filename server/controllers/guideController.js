@@ -110,6 +110,36 @@ const updateGuideStatus = async (req, res) => {
   }
 };
 
+const approveGuide = async (req, res) => {
+  const { result } = req.body;
+
+  try {
+    const response = await Guide.findByIdAndUpdate(
+      req.params.guide_id,
+      {
+        $set: {
+          approved: result,
+        },
+      },
+      {
+        new: false,
+        runValidators: true, // ? enforce schema validation on update
+      }
+    );
+
+    res.status(201).json({
+      succes: true,
+      message: `Guide Approved`,
+      result: response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      succes: false,
+      message: `${error.message}.`,
+    });
+  }
+};
+
 // ? Delete Guide
 const deleteGuide = async (req, res) => {
   try {
@@ -175,6 +205,7 @@ const getSingleGuide = async (req, res) => {
 module.exports = {
   registerGuide,
   updateGuide,
+  approveGuide,
   updateGuideStatus,
   deleteGuide,
   getAllGuide,

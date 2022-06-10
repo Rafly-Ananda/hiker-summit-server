@@ -14,7 +14,7 @@ const LocationSchema = new mongoose.Schema(
       {
         description: { type: String, required: true },
         accessibility: { type: Object, required: true },
-        track_name: { type: String, required: true, unique: true },
+        track_name: { type: String, required: true },
         basecamp_name: { type: String, required: true },
         road_name: { type: String, required: true },
         district: { type: String }, // ? kecamatan
@@ -52,7 +52,7 @@ const DestinationSchema = new mongoose.Schema(
       default: "unactive",
       required: true,
     },
-    added_by: { type: String, required: true },
+    user_id: { type: String, required: true },
     title: { type: String, required: true, unique: true },
     location: { type: LocationSchema, required: true },
     content: { type: ContentSchema, required: true },
@@ -63,6 +63,12 @@ const DestinationSchema = new mongoose.Schema(
       required: true,
     },
     likes: { type: Number, default: 0 },
+    approved: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      required: true,
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

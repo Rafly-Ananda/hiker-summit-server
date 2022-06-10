@@ -8,11 +8,14 @@ const createDestination = async (req, res) => {
   const newDestination = new Destination(JSON.parse(req.body.document));
   newDestination.content.image_assets.bucket = res.s3_bucket;
   newDestination.content.image_assets.assets_key = res.image_keys;
-  newDestination.added_by = req.params.id;
+  newDestination.user_id = req.params.id;
 
   try {
     const user = await User.findById(req.params.id);
-    if (user.is_admin) newDestination.status = "active";
+    if (user.is_admin) {
+      newDestination.status = "active";
+      newDestination.approved = "approved";
+    }
     const savedDestination = await newDestination.save();
     res.status(201).json({
       succes: true,
@@ -82,7 +85,7 @@ const updateApprovedState = async (req, res) => {
       req.params.id,
       {
         $set: {
-          approved: approveStatus,
+          approved: "approved",
         },
       },
       {

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate-v2");
 
 // TODO: Apakah track route yg unik atau destination id yang unik
+// TODO: Need TTL this because we cannot sure when to delete the schema on db when user is rejected
 const GuideSchema = new mongoose.Schema(
   {
     user_id: { type: String, required: true },
@@ -19,7 +20,11 @@ const GuideSchema = new mongoose.Schema(
       required: true,
     },
     suspended: { type: Boolean, default: false },
-    approved: { type: Boolean, default: false },
+    approved: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
   },
   {
     timestamps: true,
