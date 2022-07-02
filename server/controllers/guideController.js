@@ -119,6 +119,7 @@ const approveGuide = async (req, res) => {
       {
         $set: {
           approved: result,
+          status: "active",
         },
       },
       {
