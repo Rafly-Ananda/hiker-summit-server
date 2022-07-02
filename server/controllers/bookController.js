@@ -109,6 +109,17 @@ const uploadProofOfPayment = async (req, res) => {
     const { payment_deadline } = await Book.findById(req.query.booking_id);
 
     if (currentDate.getTime() > payment_deadline) {
+      await Book.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            paid_status: "unpaid",
+            booking_status: "declined",
+          },
+        },
+        { new: false, runValidators: true }
+      );
+
       res.status(202).json({
         succes: false,
         message: "Payment deadline overdue",
@@ -223,6 +234,27 @@ const cancelBooking = async (req, res) => {
 };
 
 const guideAccept = async (req, res) => {
+  const currentDate = new Date();
+  const { payment_deadline } = await Book.findById(req.params.booking_id);
+  if (currentDate.getTime() > payment_deadline) {
+    await Book.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          paid_status: "unpaid",
+          booking_status: "declined",
+        },
+      },
+      { new: false, runValidators: true }
+    );
+
+    res.status(202).json({
+      succes: false,
+      message: "Payment deadline overdue",
+    });
+    return;
+  }
+
   // TODO: update the guide ongoing transaction to this
   try {
     const [userGuide, booking] = await Promise.allSettled([
