@@ -51,6 +51,7 @@ router.post(
 ); // ? guide accepting book
 router.delete("/:id", verifyTokenAndAuthorization, deleteBooking); // ? Delete Booking
 router.get("/", verifyTokenAndAuthorization, getAllBooking); // ? All Bookings
+router.get("/guides/:id", verifyTokenAndAuthorization, getAllBooking); // ? All Bookings For Guide
 router.get("/user/:id", verifyTokenAndAuthorization, getAllUserBookings); // ? All User Booking
 router.get("/:id", verifyToken, getSingleBooking); // ? Single Bookings
 
