@@ -161,13 +161,13 @@ const updateBookingPaidStatus = async (req, res) => {
 
     const userGuide = await User.findById(guide.value.user_id);
 
-    if (currentDate.getTime() > booking.payment_deadline) {
-      res.status(202).json({
-        succes: false,
-        message: "Payment deadline overdue",
-      });
-      return;
-    }
+    // if (currentDate.getTime() > booking.payment_deadline) {
+    //   res.status(202).json({
+    //     succes: false,
+    //     message: "Payment deadline overdue",
+    //   });
+    //   return;
+    // }
 
     const updatedBookingStatus = await Book.findByIdAndUpdate(
       req.params.id,
