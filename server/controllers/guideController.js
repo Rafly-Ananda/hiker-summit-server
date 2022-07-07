@@ -145,7 +145,6 @@ const approveGuide = async (req, res) => {
     res.status(201).json({
       succes: true,
       message: `Guide Approved`,
-      result: response,
     });
   } catch (error) {
     res.status(500).json({
