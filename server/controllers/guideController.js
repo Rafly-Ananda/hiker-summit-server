@@ -111,10 +111,10 @@ const updateGuideStatus = async (req, res) => {
 };
 
 const approveGuide = async (req, res) => {
-  const { result } = req.body;
+  const { result, status } = req.body;
 
   try {
-    const response = await Guide.findByIdAndUpdate(
+    const { user_id } = await Guide.findByIdAndUpdate(
       req.params.guide_id,
       {
         $set: {
@@ -125,6 +125,20 @@ const approveGuide = async (req, res) => {
       {
         new: false,
         runValidators: true, // ? enforce schema validation on update
+      }
+    );
+
+    // ? change user role status/role from 'umum' to 'guide'
+    await User.findByIdAndUpdate(
+      user_id,
+      {
+        $set: {
+          user_status: status,
+        },
+      },
+      {
+        new: false,
+        runValidators: true,
       }
     );
 
