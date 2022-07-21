@@ -20,7 +20,7 @@ const sendVerificationEmail = async (user) => {
     process.env.JWT_EMAIL_SEC
   );
 
-  const url = `http://localhost:5000/api/v1/confirmation/${emailToken}`;
+  const url = `https://hiker-summit.herokuapp.com/api/v1/confirmation/${emailToken}`;
 
   await transporter.sendMail({
     from: process.env.NODEMAILER_USER,
