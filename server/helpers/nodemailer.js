@@ -20,6 +20,8 @@ const sendVerificationEmail = async (user) => {
     process.env.JWT_EMAIL_SEC
   );
 
+  // ? if env production use heroku endpoint if not use localhost:5000
+
   const url = `https://hiker-summit.herokuapp.com/api/v1/confirmation/${emailToken}`;
 
   await transporter.sendMail({
