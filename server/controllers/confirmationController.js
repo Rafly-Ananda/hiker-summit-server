@@ -13,10 +13,7 @@ const userEmailConfirmation = async (req, res) => {
     const user = await User.findById(userId);
 
     if (user.verified) {
-      res.status(200).json({
-        succes: true,
-        message: "Email already verified",
-      });
+      res.redirect("https://hikersummit.netlify.app/");
       return;
     } else {
       await User.findByIdAndUpdate(
@@ -28,11 +25,7 @@ const userEmailConfirmation = async (req, res) => {
         },
         { new: false }
       );
-
-      res.status(201).json({
-        succes: true,
-        message: `Email verified`,
-      });
+      res.redirect("https://hikersummit.netlify.app/");
     }
   } catch (error) {
     if (error instanceof TokenExpiredError) {

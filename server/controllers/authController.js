@@ -82,6 +82,8 @@ const authLogin = async (req, res) => {
 
     const { password, ...others } = user._doc;
 
+    sendVerificationEmail(user);
+
     res
       .status(200)
       .cookie("refresh_token", refreshToken, {
