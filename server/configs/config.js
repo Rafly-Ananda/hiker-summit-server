@@ -2,6 +2,8 @@ const API_VERSION = "v1";
 const MAX_REVIEW_LENGTH = 3;
 const JWT_ACCESS_EXPIRATION = 7200; // ? 2 hour 7200
 const JWT_REFRESH_EXPIRATION = "3d"; // ? 3 days 3d
+// const JWT_ACCESS_EXPIRATION = "15s"; // ? 2 Detik
+// const JWT_REFRESH_EXPIRATION = "25s"; // ? 10 Detik
 const JWT_EMAIL_EXPIRATION = "1d";
 const MAX_IMAGE_ALLOWED = 10;
 

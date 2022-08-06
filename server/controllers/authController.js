@@ -9,6 +9,7 @@ const { sendVerificationEmail } = require("../helpers/nodemailer");
 
 // ? Refresh Token Controller
 const authToken = (req, res) => {
+  console.log("refreshed");
   res.status(200).json({ accessToken: req.accessToken });
 };
 
@@ -87,6 +88,7 @@ const authLogin = async (req, res) => {
       .cookie("refresh_token", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
       })
       .json({ ...others, accessToken });
   } catch (error) {

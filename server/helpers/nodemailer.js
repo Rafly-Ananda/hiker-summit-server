@@ -2,6 +2,9 @@ const nodemailer = require("nodemailer");
 const { generateToken } = require("../helpers/generateToken");
 const { JWT_EMAIL_EXPIRATION } = require("../configs/config");
 const path = require("path");
+const Destination = require("../models/Destination");
+const Guide = require("../models/Guide");
+const User = require("../models/User");
 
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -141,30 +144,232 @@ const sendPaymentConfirmationEmail = async (user, amount) => {
 };
 
 const sendBookingPaidEmailUser = async (user, guide, booking) => {
+  const userAsGuide = await User.findById(guide.user_id);
+  const destination = await Destination.findById(booking.destination_id);
+
   await transporter.sendMail({
     from: process.env.NODEMAILER_USER,
     to: user.email,
     subject: "Hiker Summit Booking Success",
-    html: `<b>Booking is accepted, enjoy your adventure... here is your guide detail ${JSON.stringify(
-      guide
-    )}<br/>
-    booking detail:
-    <br/>
-    ${JSON.stringify(booking)}`,
+    attachments: [
+      {
+        filename: "logo.png",
+        path: path.join(__dirname, "../assets/illustrationUser.png"),
+        cid: "illustrationUser",
+      },
+    ],
+    html: `<div
+    style="
+      width: 560px;
+      margin: auto;
+      font-family: sans-serif;
+      color: #363740;
+    "
+  >
+    <img src="logo.png" alt="" style="max-width: 150px; margin-top: 60px" />
+    <h1 style="padding: 0; margin-top: 4px">Booking Success!</h1>
+    <hr style="margin-top: -8px; margin-bottom: 20px" />
+    <img
+      src="illustrationUser.png"
+      alt=""
+      style="max-width: 560px; border-radius: 6px"
+    />
+    <p style="letter-spacing: 1px">Hello Hiker,</p>
+    <p style="text-align: justify; letter-spacing: 1px">
+      <span style="font-weight: 550"
+        >Congratulations that all stages have been completed</span
+      >, now you have calmed down, just prepare the needs needed and wait for
+      the time to come. Below we provide
+      <span style="font-weight: 550"
+        >information about your guide and booking detail</span
+      >:
+    </p>
+    <table style="width: 70%; margin-left: auto; margin-right: auto">
+      <tr>
+        <td colspan="2">
+          <center>
+            <span style="font-weight: 550">Guide Detail</span>
+          </center>
+        </td>
+      </tr>
+      <tr>
+        <td>Name</td>
+        <td>${userAsGuide.first_name} ${userAsGuide.last_name}</td>
+      </tr>
+      <tr>
+        <td>About Guide</td>
+        <td>${guide.about_me}</td>
+      </tr>
+      <tr>
+        <td>Experience</td>
+        <td>${guide.hiking_experience}</td>
+      </tr>
+      <tr>
+        <td>Email</td>
+        <td>${userAsGuide.email}</td>
+      </tr>
+      <tr>
+        <td>Phone Number</td>
+        <td>${userAsGuide.phone_number}</td>
+      </tr>
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <center>
+            <span style="font-weight: 550">Booking Detail</span>
+          </center>
+        </td>
+      </tr>
+      <tr>
+        <td>Mountain</td>
+        <td>${destination.title}</td>
+      </tr>
+      <tr>
+        <td>Route</td>
+        <td>${booking.track_route[0].track_name}</td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td>${booking.date.departure} - ${booking.date.arrival}</td>
+      </tr>
+      <tr>
+        <td>Number of Hikers</td>
+        <td>${booking.hiker_count}</td>
+      </tr>
+      <tr>
+        <td>Payment Amount</td>
+        <td>${booking.payment_amount}</td>
+      </tr>
+    </table>
+    <p style="text-align: justify; letter-spacing: 1px">
+      Don't hesitate to contact us if you have any questions or concerns.
+      Enjoy your adventure!
+    </p>
+    <p style="letter-spacing: 1px">Warm regards,</p>
+    <p style="letter-spacing: 1px; margin-top: 32px">HikerSummit Team</p>
+    <hr style="margin-top: 36px" />
+    <p style="letter-spacing: 1px; text-align: center; font-size: 10px">
+      Copyright ©2022, Hiker Summit
+    </p>
+  </div>`,
   });
 };
 
 const sendBookingPaidEmailGuide = async (user, guide, booking) => {
+  const destination = await Destination.findById(booking.destination_id);
+
   await transporter.sendMail({
     from: process.env.NODEMAILER_USER,
     to: guide.email,
     subject: "Hiker Summit Booking Success",
-    html: `<b>Booking is approved, enjoy your adventure... </b> here is the customer detail${JSON.stringify(
-      user
-    )}<br/>
-    booking detail:
-    <br/>
-    ${JSON.stringify(booking)}`,
+    attachments: [
+      {
+        filename: "logo.png",
+        path: path.join(__dirname, "../assets/illustrationGuide.png"),
+        cid: "illustrationGuide",
+      },
+    ],
+    html: `    <div
+    style="
+      width: 560px;
+      margin: auto;
+      font-family: sans-serif;
+      color: #363740;
+    "
+  >
+    <img src="logo.png" alt="" style="max-width: 150px; margin-top: 60px" />
+    <h1 style="padding: 0; margin-top: 4px">Booking Success!</h1>
+    <hr style="margin-top: -8px; margin-bottom: 20px" />
+    <img
+      src="illustrationGuide.png"
+      alt=""
+      style="
+        display: block;
+        max-height: 300px;
+        margin-left: auto;
+        margin-right: auto;
+      "
+    />
+    <p style="letter-spacing: 1px">Hello Guide,</p>
+    <p style="text-align: justify; letter-spacing: 1px">
+      <span style="font-weight: 550"
+        >Congratulations that all stages have been completed</span
+      >, prepare yourself to serve hikers well because hiker satisfaction will
+      affect your career :). Below we provide
+      <span style="font-weight: 550"
+        >information about your customer and booking detail</span
+      >:
+    </p>
+    <table style="width: 70%; margin-left: auto; margin-right: auto">
+      <tr>
+        <td colspan="2">
+          <center>
+            <span style="font-weight: 550">Customer Detail</span>
+          </center>
+        </td>
+      </tr>
+      <tr>
+        <td>Name</td>
+        <td>${user.first_name} ${user.last_name}</td>
+      </tr>
+      <tr>
+        <td>Email</td>
+        <td>${user.email}</td>
+      </tr>
+      <tr>
+        <td>Phone Number</td>
+        <td>${user.phone_number}</td>
+      </tr>
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <center>
+            <span style="font-weight: 550">Booking Detail</span>
+          </center>
+        </td>
+      </tr>
+      <tr>
+        <td>Mountain</td>
+        <td>${destination.title}</td>
+      </tr>
+      <tr>
+        <td>Route</td>
+        <td>${booking.track_route[0].track_name}</td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td>${booking.date.departure} - ${booking.date.arrival}</td>
+      </tr>
+      <tr>
+        <td>Number of Hikers</td>
+        <td>${booking.hiker_count}</td>
+      </tr>
+      <tr>
+        <td>Payment Amount</td>
+        <td>${booking.payment_amount}</td>
+      </tr>
+    </table>
+    <p style="text-align: justify; letter-spacing: 1px">
+      Once again, prepare yourself as best you can and serve hikers with all
+      your heart ♥
+    </p>
+    <p style="letter-spacing: 1px">Warm regards,</p>
+    <p style="letter-spacing: 1px; margin-top: 32px">HikerSummit Team</p>
+    <hr style="margin-top: 36px" />
+    <p style="letter-spacing: 1px; text-align: center; font-size: 10px">
+      Copyright ©2022, Hiker Summit
+    </p>
+  </div>`,
   });
 };
 
