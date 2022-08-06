@@ -192,7 +192,7 @@ const updateBookingPaidStatus = async (req, res) => {
     );
 
     // TODO: send the booking details also in the image to the user and guide
-    sendBookingPaidEmailUser(user.value, userGuide, booking);
+    sendBookingPaidEmailUser(user.value, userGuide, guide.value, booking);
     sendBookingPaidEmailGuide(user.value, userGuide, booking);
 
     res.status(201).json({
