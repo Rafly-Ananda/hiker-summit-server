@@ -3,7 +3,6 @@ const { generateToken } = require("../helpers/generateToken");
 const { JWT_EMAIL_EXPIRATION } = require("../configs/config");
 const path = require("path");
 const Destination = require("../models/Destination");
-const Guide = require("../models/Guide");
 const User = require("../models/User");
 
 let transporter = nodemailer.createTransport({
@@ -166,7 +165,7 @@ const sendBookingPaidEmailUser = async (user, guide, booking) => {
       color: #363740;
     "
   >
-    <img src="logo.png" alt="" style="max-width: 150px; margin-top: 60px" />
+    <img src="cid:illustrationUser" alt="" style="max-width: 150px; margin-top: 60px" />
     <h1 style="padding: 0; margin-top: 4px">Booking Success!</h1>
     <hr style="margin-top: -8px; margin-bottom: 20px" />
     <img
@@ -274,7 +273,7 @@ const sendBookingPaidEmailGuide = async (user, guide, booking) => {
         cid: "illustrationGuide",
       },
     ],
-    html: `    <div
+    html: `<div
     style="
       width: 560px;
       margin: auto;
@@ -286,7 +285,7 @@ const sendBookingPaidEmailGuide = async (user, guide, booking) => {
     <h1 style="padding: 0; margin-top: 4px">Booking Success!</h1>
     <hr style="margin-top: -8px; margin-bottom: 20px" />
     <img
-      src="illustrationGuide.png"
+      src="cid:illustrationUser"
       alt=""
       style="
         display: block;

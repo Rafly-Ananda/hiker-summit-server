@@ -43,6 +43,7 @@ const verifyToken = (req, res, next) => {
       if (err instanceof TokenExpiredError) {
         return res.status(403).json({ message: "Access Token Expired" });
       }
+      console.log("trigg");
       return res.status(403).json({ message: "Not Authenticated" });
     }
     req.user = user;

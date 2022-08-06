@@ -1,6 +1,8 @@
 const CryptoJS = require("crypto-js");
 const User = require("../models/User");
 const Guide = require("../models/Guide");
+const Ticket = require("../models/Ticket");
+const Payment = require("../models/Book");
 const { sendVerificationEmail } = require("../helpers/nodemailer");
 
 // ? Update User General
@@ -90,6 +92,12 @@ const deleteUser = async (req, res) => {
     await Promise.allSettled([
       await User.findByIdAndDelete(req.params.id),
       await Guide.deleteMany({
+        user_id: req.params.id,
+      }),
+      await Ticket.deleteMany({
+        user_id: req.params.id,
+      }),
+      await Payment.deleteMany({
         user_id: req.params.id,
       }),
     ]);

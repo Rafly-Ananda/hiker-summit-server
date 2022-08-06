@@ -319,7 +319,6 @@ const getAllBooking = async (req, res) => {
   req.query.page_size
     ? (paginationOptions.limit = +req.query.page_size)
     : (paginationOptions.pagination = false);
-  req.query.user_id ? (paginationQuery.user_id = req.query.user_id) : "";
   req.query.status ? (paginationQuery.paid_status = req.query.status) : "";
   req.query.destination_id
     ? (paginationQuery.destination_id = req.query.destination_id)
