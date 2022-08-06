@@ -38,8 +38,7 @@ const createBooking = async (req, res) => {
 
     // ? calculate and generate payment amount
     newBooking.payment_amount = Number(
-      String(price_per_day * newBooking.hiker_count).slice(0, -3) +
-        String(uniqueId)
+      String(price_per_day * 250000).slice(0, -3) + String(uniqueId)
     );
 
     const savedBooking = await newBooking.save();

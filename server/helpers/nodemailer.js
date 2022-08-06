@@ -142,7 +142,7 @@ const sendPaymentConfirmationEmail = async (user, amount) => {
   });
 };
 
-const sendBookingPaidEmailUser = async (user, guide, booking) => {
+const sendBookingPaidEmailUser = async (user, guide, userAsGuide, booking) => {
   const destination = await Destination.findById(booking.destination_id);
 
   await transporter.sendMail({
@@ -196,11 +196,11 @@ const sendBookingPaidEmailUser = async (user, guide, booking) => {
       </tr>
       <tr>
         <td>About Guide</td>
-        <td>${guide.about_me}</td>
+        <td>${userAsGuide.about_me}</td>
       </tr>
       <tr>
         <td>Experience</td>
-        <td>${guide.hiking_experience}</td>
+        <td>${userAsGuide.hiking_experience}</td>
       </tr>
       <tr>
         <td>Email</td>
