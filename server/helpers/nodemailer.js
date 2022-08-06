@@ -143,7 +143,6 @@ const sendPaymentConfirmationEmail = async (user, amount) => {
 };
 
 const sendBookingPaidEmailUser = async (user, guide, booking) => {
-  const userAsGuide = await User.findById(guide.user_id);
   const destination = await Destination.findById(booking.destination_id);
 
   await transporter.sendMail({
@@ -193,7 +192,7 @@ const sendBookingPaidEmailUser = async (user, guide, booking) => {
       </tr>
       <tr>
         <td>Name</td>
-        <td>${userAsGuide.first_name} ${userAsGuide.last_name}</td>
+        <td>${guide.first_name} ${guide.last_name}</td>
       </tr>
       <tr>
         <td>About Guide</td>
@@ -205,11 +204,11 @@ const sendBookingPaidEmailUser = async (user, guide, booking) => {
       </tr>
       <tr>
         <td>Email</td>
-        <td>${userAsGuide.email}</td>
+        <td>${guide.email}</td>
       </tr>
       <tr>
         <td>Phone Number</td>
-        <td>${userAsGuide.phone_number}</td>
+        <td>${guide.phone_number}</td>
       </tr>
       <tr>
         <td colspan="2"></td>
