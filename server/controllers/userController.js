@@ -3,7 +3,7 @@ const User = require("../models/User");
 const Guide = require("../models/Guide");
 const Ticket = require("../models/Ticket");
 const Payment = require("../models/Book");
-const Review = require("../models/Review`");
+const Review = require("../models/Review");
 const { sendVerificationEmail } = require("../helpers/nodemailer");
 
 // ? Update User General
