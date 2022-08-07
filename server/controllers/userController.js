@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Guide = require("../models/Guide");
 const Ticket = require("../models/Ticket");
 const Payment = require("../models/Book");
+const Review = require("../models/Review`");
 const { sendVerificationEmail } = require("../helpers/nodemailer");
 
 // ? Update User General
@@ -98,6 +99,9 @@ const deleteUser = async (req, res) => {
         user_id: req.params.id,
       }),
       await Payment.deleteMany({
+        user_id: req.params.id,
+      }),
+      await Review.deleteMany({
         user_id: req.params.id,
       }),
     ]);
