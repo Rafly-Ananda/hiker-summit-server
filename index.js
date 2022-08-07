@@ -25,19 +25,17 @@ const { API_VERSION } = require("./server/configs/config");
 const PORT = process.env.PORT || 5000;
 
 // ? App Middleware
-const whitelist = [
-  "http://localhost:3001",
-  "http://localhost:3000",
-  "https://hikersummit.netlify.app",
-];
+const whitelist = ["http://localhost:3000", "https://hikersummit.netlify.app"];
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  // origin: function (origin, callback) {
+  //   if (whitelist.indexOf(origin) !== -1) {
+  //     console.log(origin);
+  //     callback(null, true);
+  //   } else {
+  //     callback(new Error("Not allowed by CORS"));
+  //   }
+  // },
+  origin: whitelist,
   credentials: true,
 };
 app.use(express.json());
