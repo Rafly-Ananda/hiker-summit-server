@@ -48,7 +48,7 @@ const createBooking = async (req, res) => {
     );
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    newBooking.payment_amount = diffDays * 250000;
+    newBooking.payment_amount = (diffDays + 1) * 250000;
 
     const savedBooking = await newBooking.save();
 
