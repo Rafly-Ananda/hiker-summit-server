@@ -43,7 +43,10 @@ const createBooking = async (req, res) => {
     // );
 
     // Payment amount calculated from front-end
-    newBooking.payment_amount = req.body.amount;
+    const diffTime = Math.abs(req.body.date.arrival - req.body.date.departure);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    newBooking.payment_amount = diffDays * 250000;
 
     const savedBooking = await newBooking.save();
 

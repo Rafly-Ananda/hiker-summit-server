@@ -3,7 +3,6 @@ const { generateToken } = require("../helpers/generateToken");
 const { JWT_EMAIL_EXPIRATION } = require("../configs/config");
 const path = require("path");
 const Destination = require("../models/Destination");
-const User = require("../models/User");
 
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -83,7 +82,7 @@ const sendPaymentConfirmationEmail = async (user, amount) => {
       {
         filename: "logo.png",
         path: path.join(__dirname, "../assets/logo.png"),
-        cid: "illustrationWelcome",
+        cid: "logo",
       },
     ],
     html: `<div
@@ -94,7 +93,7 @@ const sendPaymentConfirmationEmail = async (user, amount) => {
       color: #363740;
     "
   >
-    <img src="logo.png" alt="" style="max-width: 150px; margin-top: 60px" />
+    <img src="cid:logo" alt="" style="max-width: 150px; margin-top: 60px" />
     <h1 style="padding: 0; margin-top: 4px">Guide accepted your booking!</h1>
     <hr style="margin-top: -8px; margin-bottom: 32px" />
     <p style="letter-spacing: 1px">Hello Hiker,</p>
@@ -151,9 +150,14 @@ const sendBookingPaidEmailUser = async (user, guide, userAsGuide, booking) => {
     subject: "Hiker Summit Booking Success",
     attachments: [
       {
-        filename: "logo.png",
+        filename: "illustrationUser.png",
         path: path.join(__dirname, "../assets/illustrationUser.png"),
         cid: "illustrationUser",
+      },
+      {
+        filename: "logo.png",
+        path: path.join(__dirname, "../assets/logo.png"),
+        cid: "logo",
       },
     ],
     html: `<div
@@ -164,11 +168,11 @@ const sendBookingPaidEmailUser = async (user, guide, userAsGuide, booking) => {
       color: #363740;
     "
   >
-    <img src="cid:illustrationUser" alt="" style="max-width: 150px; margin-top: 60px" />
+    <img src="cid:logo" alt="" style="max-width: 150px; margin-top: 60px" />
     <h1 style="padding: 0; margin-top: 4px">Booking Success!</h1>
     <hr style="margin-top: -8px; margin-bottom: 20px" />
     <img
-      src="illustrationUser.png"
+      src="cid:illustrationUser"
       alt=""
       style="max-width: 560px; border-radius: 6px"
     />
@@ -267,9 +271,14 @@ const sendBookingPaidEmailGuide = async (user, guide, booking) => {
     subject: "Hiker Summit Booking Success",
     attachments: [
       {
-        filename: "logo.png",
+        filename: "illustrationGuide.png",
         path: path.join(__dirname, "../assets/illustrationGuide.png"),
         cid: "illustrationGuide",
+      },
+      {
+        filename: "logo.png",
+        path: path.join(__dirname, "../assets/logo.png"),
+        cid: "logo",
       },
     ],
     html: `<div
@@ -280,11 +289,11 @@ const sendBookingPaidEmailGuide = async (user, guide, booking) => {
       color: #363740;
     "
   >
-    <img src="logo.png" alt="" style="max-width: 150px; margin-top: 60px" />
+    <img src="cid:logo" alt="" style="max-width: 150px; margin-top: 60px" />
     <h1 style="padding: 0; margin-top: 4px">Booking Success!</h1>
     <hr style="margin-top: -8px; margin-bottom: 20px" />
     <img
-      src="cid:illustrationUser"
+      src="cid:illustrationGuide"
       alt=""
       style="
         display: block;
