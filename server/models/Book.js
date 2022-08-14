@@ -31,6 +31,9 @@ const DestinationBookingSchema = new mongoose.Schema(
       default: "pending",
       required: true,
     },
+    response_note: {
+      type: String,
+    },
   },
   {
     timestamps: true,

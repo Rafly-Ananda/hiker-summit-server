@@ -163,7 +163,7 @@ const uploadProofOfPayment = async (req, res) => {
 
 // ? Update Booking Paid Status ( this route is used after checking the validity of the proof of payment, Done by admin via dashboard admin )
 const updateBookingPaidStatus = async (req, res) => {
-  const { paid_status, booking_status } = req.body;
+  const { paid_status, booking_status, response_note } = req.body;
   const currentDate = new Date();
 
   try {
@@ -194,6 +194,7 @@ const updateBookingPaidStatus = async (req, res) => {
         $set: {
           paid_status,
           booking_status,
+          response_note,
         },
       },
       { new: false, runValidators: true }
