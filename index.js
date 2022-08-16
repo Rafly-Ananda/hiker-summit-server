@@ -26,9 +26,9 @@ const PORT = process.env.PORT || 5000;
 
 // ? App Middleware
 const whitelist = [
-  "http://localhost:3000",
-  "https://hikersummit.netlify.app",
-  "http://localhost:3001",
+  "http://localhost:3000/",
+  "https://hikersummit.netlify.app/",
+  "http://localhost:3001/",
 ];
 const corsOptions = {
   // origin: function (origin, callback) {
